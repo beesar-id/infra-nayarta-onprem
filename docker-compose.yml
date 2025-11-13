@@ -17,6 +17,7 @@
 #    docker-compose --profile analytics up -d
 #    docker-compose --profile rabbitmq up -d
 #    docker-compose --profile clickhouse up -d
+#    docker-compose --profile watchtower up -d  # Auto-update containers
 #
 # 3. Run multiple profiles:
 #    docker-compose --profile database --profile app up -d
@@ -43,3 +44,31 @@ include:
   - path: analytics/pipeline/firesmoke/docker-compose.yml
   - path: analytics/pipeline/task/docker-compose.yml
   - path: analytics/scheduler/docker-compose.yml
+
+# Watchtower service for automatic container updates
+services:
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: nayarta-watchtower
+    restart: unless-stopped
+    profiles: ["all", "watchtower"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      # Check for updates every 1 hour (3600 seconds)
+      - WATCHTOWER_POLL_INTERVAL=3600
+      # Clean up old images after updating
+      - WATCHTOWER_CLEANUP=true
+      # Include stopped containers
+      - WATCHTOWER_INCLUDE_STOPPED=false
+      # Include restartable containers
+      - WATCHTOWER_INCLUDE_RESTARTING=true
+      # Send notifications (optional - uncomment and configure if needed)
+      # - WATCHTOWER_NOTIFICATIONS=slack
+      # - WATCHTOWER_NOTIFICATION_SLACK_HOOK_URL=your-webhook-url
+    # Only watch containers with the label com.centurylinklabs.watchtower.enable=true
+    # This ensures only specific services (api, admin, frontend) are monitored
+    # Interval: 3600 seconds = 1 hour
+    command: --interval 3600 --cleanup --include-restarting --label-enable
+    # Note: Watchtower doesn't need to be on the application network
+    # It monitors containers via the Docker socket

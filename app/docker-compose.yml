@@ -18,6 +18,8 @@ services:
     image: beesar/beesar-vms-be:latest
     container_name: nayarta-vms-api
     restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     ports:
       - "8457:8080"
     # env_file:
@@ -104,6 +106,8 @@ services:
     image: beesar/beesar-vms-admin:onprem-latest
     container_name: nayarta-vms-admin
     restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     ports:
       - "8456:3000"
     # env_file:
@@ -120,6 +124,8 @@ services:
     image: beesar/beesar-vms-cloud:onprem-latest
     container_name: nayarta-vms-frontend
     restart: unless-stopped
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
     ports:
       - "80:3000"
     # env_file:
