@@ -23,8 +23,8 @@ services:
       - "${RABBITMQ_PORT:-5672}:5672"           # AMQP protocol
       - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"  # Management UI
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-nayarta}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-nayarta_rabbitmq_password}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-queueuser}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-queuePassword}
       RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-nayarta}
     volumes:
       - ./data:/var/lib/rabbitmq:rw

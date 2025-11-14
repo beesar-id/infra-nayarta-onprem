@@ -40,7 +40,7 @@ services:
       
       # ClickHouse Connection (from analytics/clickhouse service)
       - CLICKHOUSE_DATABASE=${CLICKHOUSE_DATABASE:-default}
-      - CLICKHOUSE_HOST=${CLICKHOUSE_HOST:-nayarta-clickhouse}
+      - CLICKHOUSE_HOST=${CLICKHOUSE_HOST:-nayarta-ch-server}
       - CLICKHOUSE_USER=${CLICKHOUSE_USER:-default}
       - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
       - CLICKHOUSE_PORT=${CLICKHOUSE_PORT:-8123}
@@ -65,8 +65,8 @@ services:
 
       # RabbitMQ Connection 
       - RABBITMQ_HOST=${RABBITMQ_HOST:-nayarta-rabbitmq}
-      - RABBITMQ_USERNAME=${RABBITMQ_USER:-mqttuser}
-      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+      - RABBITMQ_USER=${RABBITMQ_USER:-queueuser}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-queuePassword}
       - RABBITMQ_PORT=${RABBITMQ_PORT:-5672}
       - RABBITMQ_TLS=${RABBITMQ_TLS:-false}
       - RABBITMQ_VHOST=${RABBITMQ_VHOST:-/}
