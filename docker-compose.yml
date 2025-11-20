@@ -35,6 +35,7 @@
 # Include all service compose files
 include:
   - path: database/docker-compose.yml
+  - path: migration/docker-compose.yml
   - path: storage/docker-compose.yml
   - path: stream/docker-compose.yml
   - path: app/docker-compose.yml

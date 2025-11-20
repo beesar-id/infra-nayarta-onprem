@@ -1,28 +1,6 @@
-[submodule "analytics/facesearch/src"]
-	path = analytics/facesearch/src
-	url = https://beesar@dev.azure.com/beesar/Nayarta/_git/analytic-FaceSearchEndpoint
-[submodule "analytics/pipeline/task/src"]
-	path = analytics/pipeline/task/src
-	url = https://beesar@dev.azure.com/beesar/Nayarta/_git/analytic_tasks
-[submodule "analytics/pipeline/firesmoke/src"]
-	path = analytics/pipeline/firesmoke/src
-	url = https://beesar@dev.azure.com/beesar/Nayarta/_git/analytic-fire_smoke
-	branch = feat/jsonl
-[submodule "analytics/scheduler/src"]
-	path = analytics/scheduler/src
-	url = https://beesar@dev.azure.com/beesar/Nayarta/_git/analytics-scheduler
-[submodule "analytics/pipeline/restricted_area/src"]
-	path = analytics/pipeline/restricted_area/src
-	url = https://dev.azure.com/beesar/Nayarta/_git/Analytic-RestrictedArea
-[submodule "analytics/pipeline/object_unattended/src"]
-	path = analytics/pipeline/object_unattended/src
-	url = https://beesar@dev.azure.com/beesar/Nayarta/_git/Analytic-ObjectUnattended
-	branch = feat/jsonl
-[submodule "analytics/pipeline/people_converge/src"]
-	path = analytics/pipeline/people_converge/src
-	url = https://beesar@dev.azure.com/beesar/Nayarta/_git/Analytic-PeopleConverge
-	branch = feat/jsonl
-[submodule "analytics/pipeline/hse_safety/src"]
-	path = analytics/pipeline/hse_safety/src
-	url = https://beesar@dev.azure.com/beesar/Nayarta/_git/analytics_hse_safety
-	branch = feat/jsonl
+[submodule "migration/analytics-postgres"]
+	path = migration/analytics-postgres
+	url = https://github.com/beesar-id/nayarta-migration-postgres-analytics.git
+[submodule "migration/analytics-ch"]
+	path = migration/analytics-ch
+	url = https://github.com/beesar-id/nayarta-migration-clickhouse.git
