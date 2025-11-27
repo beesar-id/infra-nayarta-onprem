@@ -119,6 +119,9 @@ services:
       # CORS Origin
       - ALLOW_ORIGINS=${ALLOW_ORIGINS:-http://localhost:80,http://localhost:8456,http://localhost:8457,http://localhost:3000}
 
+      # SSE Configuration
+      - SSE_PORT=${SSE_PORT:-8080}
+      
       # Application Configuration
       - APP_ENVIRONMENT=${APP_ENVIRONMENT:-development}
       - APP_NAME=${APP_NAME:-vms-backend}
