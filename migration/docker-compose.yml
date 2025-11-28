@@ -27,3 +27,19 @@ services:
       echo 'Running ClickHouse migrations...' &&
       goose -dir /app/analytics-ch clickhouse "tcp://$${CH_USER}:$${CH_PASSWORD}@$${CH_HOST}:$${CH_TCP_PORT}/$${CH_DATABASE}" up
       "
+
+  vms-migration:
+    profiles: ["migration", "all"]
+    image: beesar/beesar-vms-be:migration-latest
+    container_name: nayarta-migration-vms
+    restart: unless-stopped
+    environment:
+      # Database Connection (from database service)
+      - DB_NAME=${DB_NAME:-vms_development}
+      - DB_USER=${DB_USER:-admin}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST:-nayarta-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+
+    networks:
+      - nayarta-network
