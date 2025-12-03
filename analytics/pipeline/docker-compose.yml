@@ -1,0 +1,73 @@
+networks:
+  nayarta-network:
+    name: nayarta-network
+    driver: bridge
+
+services:
+  pipman-ui:
+    image: beesar/analytics-pipeline:latest
+    profiles: ["analytics", "all", "pipeline"]
+    container_name: nayarta-analytics-pipman-ui
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    command: >
+        sh -c "
+          python manage.py migrate
+          python manage.py runserver 0.0.0.0:8000
+        "
+    networks:
+      - nayarta-network
+    volumes:
+      - ./pipman/pipmanweb:/app:delegated
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Scheduler Application
+  pipman:
+    image: beesar/analytics-pipeline:latest
+    profiles: ["analytics", "all", "pipeline"]
+    container_name: nayarta-analytics-pipman
+    restart: unless-stopped
+    environment:
+      # Database Configuration (PostgreSQL - External)
+      - DB_NAME=${DB_NAME_ANALYTICS:-schedulerdb}
+      - DB_USER=${DB_USER_ANALYTICS:-admin}
+      - DB_PASS=${DB_PASSWORD_ANALYTICS:-change_me}
+      - DB_HOST=${DB_ANALYTICS_HOST:-nayarta-postgres}
+      - DB_PORT=${DB_PORT_ANALYTICS:-5432}
+      
+      # Nayarta API Configuration
+      - NAYARTA_URL=${API_BASE_URL_ANALYTICS}
+      - NAYARTA_API_KEY=${API_KEY_PIPELINE}
+      - NAYARTA_STREAM_URL=${NAYARTA_STREAM_URL:-rtsp://localhost:8554}      
+
+      # Nayai Configuration
+      - PIPMAN_URL=${PIPMAN_URL:-http://${HOST_IP:-localhost}:8000}
+      
+      # RabbitMQ Configuration (External)
+      - RMQ_HOST=${HOST_IP:-localhost}
+      - RMQ_PORT=${RABBITMQ_PORT:-5672}
+      - RMQ_USER=${RABBITMQ_USER}
+      - RMQ_PASS=${RABBITMQ_PASSWORD}
+      
+      # Debug Mode
+      - DEBUG=${DEBUG:-False}
+    volumes:
+      - ./pipman:/app:delegated
+    command: python pipman.py
+    networks:
+      - nayarta-network
+    depends_on:
+      - pipman-ui
+    #healthcheck:
+    #  test: ["CMD-SHELL", "ps aux | grep '[s]cheduler_pika.py' || exit 1"]
+    #  interval: 30s
+    #  timeout: 10s
+    #  retries: 3
+    #  start_period: 20s
+

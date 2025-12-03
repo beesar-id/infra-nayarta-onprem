@@ -1,0 +1,30 @@
+# PyTorch with CUDA 12.1
+torch==2.4.1
+torchvision==0.19.1
+
+# Core ML & CV
+ultralytics
+opencv-python-headless
+numpy
+
+# Web & Backend
+Django==4.2.26
+
+# Async Task & Messaging
+celery
+flower
+kombu
+pika==1.3.2
+paho-mqtt
+
+# Database & ORM
+SQLAlchemy
+psycopg[binary]
+
+# Utilities
+psutil==7.1.3
+python-dotenv==1.0.1
+requests>=2.32.4
+
+# Analytics / Other
+clickhouse-connect

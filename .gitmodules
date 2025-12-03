@@ -4,3 +4,6 @@
 [submodule "migration/analytics-ch"]
 	path = migration/analytics-ch
 	url = https://github.com/beesar-id/nayarta-migration-clickhouse.git
+[submodule "analytics/pipeline/pipman"]
+	path = analytics/pipeline/pipman
+	url = https://github.com/beesar-id/pipman.git

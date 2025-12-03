@@ -45,6 +45,9 @@ include:
   # Monitoring services
   - path: monitoring/docker-compose.yml
 
+  # Analytics services
+  - path: analytics/pipeline/docker-compose.yml
+
 # Watchtower service for automatic container updates
 services:
   watchtower:
