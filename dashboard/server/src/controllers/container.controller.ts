@@ -50,6 +50,11 @@ export class ContainerController {
     try {
       const containerId = c.req.param('id');
       const stats = await containerService.getContainerStats(containerId);
+      
+      if (!stats) {
+        return c.json({ error: 'Container not found or not running' }, 404);
+      }
+      
       return c.json(stats);
     } catch (error: any) {
       return c.json({ error: error.message }, 500);

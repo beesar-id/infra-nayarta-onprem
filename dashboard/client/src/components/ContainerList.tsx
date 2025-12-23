@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { apiService } from '../services/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import {
   DropdownMenu,
@@ -12,7 +13,7 @@ import {
 import { ContainerDetailsDialog } from './ContainerDetailsDialog';
 import { ContainerLogsDialog } from './ContainerLogsDialog';
 import { ContainerEnvDialog } from './ContainerEnvDialog';
-import { Loader2, Container as PackageContainer, Clock, ChevronDown, ChevronUp, MoreVertical, Play, Square, RotateCw, FileText, Settings, Trash2, ContainerIcon, Pause } from 'lucide-react';
+import { Loader2, Container as PackageContainer, Clock, ChevronDown, ChevronUp, MoreVertical, Play, Square, RotateCw, FileText, Settings, Trash2, ContainerIcon, Pause, Search, ChevronLeft, ChevronRight, Circle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Container } from '@/types';
 
@@ -30,6 +31,9 @@ export const ContainerList: React.FC<ContainerListProps> = ({
   const [detailsDialog, setDetailsDialog] = useState<{ open: boolean; containerId: string; containerName: string } | null>(null);
   const [logsDialog, setLogsDialog] = useState<{ open: boolean; containerId: string; containerName: string } | null>(null);
   const [envDialog, setEnvDialog] = useState<{ open: boolean; containerId: string; containerName: string } | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
 
   const handleContainerAction = async (id: string, action: 'start' | 'stop' | 'restart' | 'remove') => {
     if (action === 'remove') {
@@ -66,46 +70,116 @@ export const ContainerList: React.FC<ContainerListProps> = ({
   const getStatusBadge = (state: string) => {
     switch (state) {
       case 'running':
-        return <Badge variant="default" className="text-xs bg-green-500 hover:bg-green-600 rounded-full shadow-none">Running</Badge>;
+        return (
+          <Badge variant="default" className="text-xs bg-green-500 hover:bg-green-600 rounded-full shadow-none flex items-center gap-1">
+            <Circle className="h-2 w-2 fill-current" />
+            Running
+          </Badge>
+        );
       case 'exited':
-        return <Badge variant="destructive" className="text-xs">Stopped</Badge>;
+        return (
+          <Badge variant="destructive" className="text-xs rounded-full flex items-center gap-1">
+            <Circle className="h-2 w-2 fill-current" />
+            Stopped
+          </Badge>
+        );
       case 'created':
-        return <Badge variant="secondary" className="text-xs">Created</Badge>;
+        return (
+          <Badge variant="secondary" className="text-xs rounded-full flex items-center gap-1">
+            <Circle className="h-2 w-2 fill-current" />
+            Created
+          </Badge>
+        );
+      case 'restarting':
+        return (
+          <Badge variant="outline" className="text-xs rounded-full flex items-center gap-1">
+            <Circle className="h-2 w-2 fill-current" />
+            Restarting
+          </Badge>
+        );
       default:
-        return <Badge variant="outline" className="text-xs">{state}</Badge>;
+        return (
+          <Badge variant="outline" className="text-xs rounded-full flex items-center gap-1">
+            <Circle className="h-2 w-2 fill-current" />
+            {state}
+          </Badge>
+        );
     }
   };
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp * 1000).toLocaleString('id-ID', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
-  if (containers.length === 0) {
-    return (
-      <Card className="border border-primary">
-        <CardContent className="py-8 text-center">
-          <p className="text-sm text-muted-foreground">Tidak ada container yang ditemukan</p>
-        </CardContent>
-      </Card>
+  // Filter containers based on search query
+  const filteredContainers = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return containers;
+    }
+    const query = searchQuery.toLowerCase();
+    return containers.filter(container => 
+      container.name.toLowerCase().includes(query) ||
+      container.id.toLowerCase().includes(query) ||
+      container.image.toLowerCase().includes(query) ||
+      container.status.toLowerCase().includes(query) ||
+      container.state.toLowerCase().includes(query)
     );
-  }
+  }, [containers, searchQuery]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredContainers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedContainers = filteredContainers.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   return (
     <>
-      <div className="space-y-2">
-        {containers.map((container) => {
+      {/* Search Bar */}
+      <div className="mb-3">
+        <div className="relative">
+          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search containers by name, ID, image, status..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8 border border-primary"
+          />
+        </div>
+      </div>
+
+      {/* Results Info */}
+      {searchQuery && (
+        <div className="mb-2 text-sm text-muted-foreground">
+          Found {filteredContainers.length} container{filteredContainers.length !== 1 ? 's' : ''} matching "{searchQuery}"
+        </div>
+      )}
+
+      {/* Containers List */}
+      {containers.length === 0 ? (
+        <Card className="border border-primary">
+          <CardContent className="py-8 text-center">
+            <p className="text-sm text-muted-foreground">Tidak ada container yang ditemukan</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-2">
+          {paginatedContainers.length === 0 ? (
+            <Card className="border border-primary">
+              <CardContent className="py-8 text-center">
+                <p className="text-sm text-muted-foreground">No containers found matching your search</p>
+              </CardContent>
+            </Card>
+          ) : (
+          paginatedContainers.map((container) => {
           const isExpanded = expandedContainers.has(container.id);
           const isLoading = loading === container.id;
           
           return (
             <Card key={container.id} className="hover:shadow-sm transition-shadow border border-primary">
-              <CardContent className="p-2 px-4">
+              <CardContent className="p-2 px-2">
                 <div className="flex items-center gap-4">
                   {/* Icon Container */}
                   <div className="flex-shrink-0">
@@ -120,9 +194,6 @@ export const ContainerList: React.FC<ContainerListProps> = ({
                     <p className="font-medium text-sm truncate">{container.name}</p>
                     <p className="text-xs text-muted-foreground">
                       ID: {container.id.substring(0, 12)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDate(container.created)}
                     </p>
                   </div>
 
@@ -238,8 +309,46 @@ export const ContainerList: React.FC<ContainerListProps> = ({
               </CardContent>
             </Card>
           );
-        })}
-      </div>
+        })
+          )}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Card className="border border-primary mt-3">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Showing {startIndex + 1} to {Math.min(endIndex, filteredContainers.length)} of {filteredContainers.length} container{filteredContainers.length !== 1 ? 's' : ''}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="border border-primary"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <div className="text-sm text-muted-foreground">
+                  Page {currentPage} of {totalPages}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="border border-primary"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Dialogs */}
       {detailsDialog && (
@@ -273,7 +382,7 @@ export const ContainerList: React.FC<ContainerListProps> = ({
 const ContainerUptime: React.FC<{ containerId: string }> = ({ containerId }) => {
   const [uptime, setUptime] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchUptime = async () => {
       try {
         const details = await apiService.getContainerDetails(containerId);
@@ -319,7 +428,7 @@ const ContainerExpandedDetails: React.FC<{ containerId: string }> = ({ container
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     Promise.all([
       apiService.getContainerDetails(containerId),
       apiService.getContainerStats(containerId).catch(() => null),

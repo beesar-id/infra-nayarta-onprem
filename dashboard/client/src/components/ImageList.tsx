@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { apiService } from '../services/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Loader2, Download, Trash2, Image as ImageIcon, X } from 'lucide-react';
+import { Loader2, Download, Trash2, Disc3, X, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import type { Image, PullProgress } from '../types';
 
@@ -34,6 +34,9 @@ export const ImageList: React.FC<ImageListProps> = ({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [pullingImageId, setPullingImageId] = useState<string | null>(null);
   const [deleteConfirmDialog, setDeleteConfirmDialog] = useState<{ open: boolean; imageId: string; imageTags: string[] } | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
 
   useEffect(() => {
     if (progressId && isPulling) {
@@ -182,6 +185,31 @@ export const ImageList: React.FC<ImageListProps> = ({
     return new Date(timestamp * 1000).toLocaleString();
   };
 
+  // Filter images based on search query
+  const filteredImages = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return images;
+    }
+    const query = searchQuery.toLowerCase();
+    return images.filter(image => {
+      const tags = image.tags || [];
+      const tagMatch = tags.some(tag => tag.toLowerCase().includes(query));
+      const idMatch = image.id.toLowerCase().includes(query);
+      return tagMatch || idMatch;
+    });
+  }, [images, searchQuery]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredImages.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedImages = filteredImages.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   return (
     <>
       {/* Pull Image Section */}
@@ -221,22 +249,43 @@ export const ImageList: React.FC<ImageListProps> = ({
         </CardContent>
       </Card>
 
+      {/* Search Bar */}
+      <div className="mb-3">
+        <div className="relative">
+          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search images by name, tag, or ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8 border border-primary"
+          />
+        </div>
+      </div>
+
+      {/* Results Info */}
+      {searchQuery && (
+        <div className="mb-2 text-sm text-muted-foreground">
+          Found {filteredImages.length} image{filteredImages.length !== 1 ? 's' : ''} matching "{searchQuery}"
+        </div>
+      )}
+
       {/* Images List */}
       <div className="space-y-2">
-        {images.length === 0 ? (
+        {paginatedImages.length === 0 ? (
           <Card className="border border-primary">
             <CardContent className="py-8 text-center">
-              <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+              <Disc3 className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
               <p className="text-sm text-muted-foreground">No images found</p>
             </CardContent>
           </Card>
         ) : (
-          images.map((image) => (
+          paginatedImages.map((image) => (
             <Card key={image.id} className="hover:shadow-sm transition-shadow border border-primary">
-              <CardContent className="p-2">
+              <CardContent className="p-2 px-2">
                 <div className="flex items-center gap-4">
                   <div className="flex-shrink-0">
-                    <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                    <Disc3 className="h-5 w-5 text-muted-foreground" />
                   </div>
 
                   <div className="flex-1 min-w-0 grid grid-cols-12 gap-4 items-center">
@@ -285,7 +334,7 @@ export const ImageList: React.FC<ImageListProps> = ({
                         onClick={() => handleDeleteClick(image.id, image.tags)}
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
                         disabled={deletingId === image.id}
                         title="Delete Image"
                       >
@@ -303,6 +352,42 @@ export const ImageList: React.FC<ImageListProps> = ({
           ))
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Card className="border border-primary mt-3">
+          <CardContent className="p-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Showing {startIndex + 1} to {Math.min(endIndex, filteredImages.length)} of {filteredImages.length} image{filteredImages.length !== 1 ? 's' : ''}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="border border-primary"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <div className="text-sm text-muted-foreground">
+                  Page {currentPage} of {totalPages}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="border border-primary"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Pull Progress Dialog */}
       <Dialog 

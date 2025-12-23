@@ -44,7 +44,7 @@ export const ProfileControls: React.FC<ProfileControlsProps> = ({
         disabled={loading !== null}
         variant="outline"
         size="sm"
-        className="border border-primary"
+        className="flex-1 border border-primary"
       >
         {loading === 'up' ? (
           <Loader2 className="h-4 w-4 animate-spin" />
@@ -60,7 +60,7 @@ export const ProfileControls: React.FC<ProfileControlsProps> = ({
         disabled={loading !== null}
         variant="outline"
         size="sm"
-        className="border border-primary"
+        className="flex-1 border border-primary"
       >
         {loading === 'down' ? (
           <Loader2 className="h-4 w-4 animate-spin" />

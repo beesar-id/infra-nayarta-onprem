@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Container as ContainerIcon, Info } from 'lucide-react';
 import { apiService } from '../services/api';
 
 interface ContainerDetailsDialogProps {
@@ -56,17 +56,35 @@ export const ContainerDetailsDialog: React.FC<ContainerDetailsDialogProps> = ({
     return `${(value * 100).toFixed(2)}%`;
   };
 
+  const formatDate = (timestamp: number) => {
+    if (!timestamp) return 'N/A';
+    return new Date(timestamp * 1000).toLocaleString('id-ID', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+
   if (!open) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Container Details</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="flex items-center gap-2">
+            <ContainerIcon className="h-5 w-5" />
+            Container Details
+          </DialogTitle>
+          <DialogDescription className="flex items-center gap-2">
+            <Info className="h-4 w-4" />
             Informasi lengkap tentang container
           </DialogDescription>
         </DialogHeader>
+
+        <Separator />
 
         {loading ? (
           <div className="flex items-center justify-center py-8">
@@ -90,9 +108,17 @@ export const ContainerDetailsDialog: React.FC<ContainerDetailsDialogProps> = ({
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-1">Status</p>
-                <Badge variant={details?.status === 'running' ? 'default' : 'destructive'}>
+                <Badge 
+                  variant={details?.status === 'running' ? 'default' : 'destructive'} 
+                  className="rounded-full flex items-center gap-1 w-fit"
+                >
+                  <Circle className="h-2 w-2 fill-current" />
                   {details?.status || 'N/A'}
                 </Badge>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Created</p>
+                <p className="text-sm">{formatDate(details?.created || 0)}</p>
               </div>
             </div>
 

@@ -63,38 +63,60 @@ export class ImageService {
             return;
           }
           
-          const json = JSON.parse(data.toString());
+          // Handle multiple JSON objects in buffer (newline-separated)
+          const dataStr = data.toString();
+          const lines = dataStr.split('\n').filter(line => line.trim());
           
-          let progress = current.progress || 0;
-          if (json.progressDetail && json.progressDetail.current && json.progressDetail.total) {
-            progress = Math.round((json.progressDetail.current / json.progressDetail.total) * 100);
-          } else if (json.status) {
-            if (json.status.includes('Downloading') || json.status.includes('Pulling')) {
-              progress = Math.min(current.progress + 1, 99);
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            
+            try {
+              const json = JSON.parse(line);
+              
+              let progress = current.progress || 0;
+              if (json.progressDetail && json.progressDetail.current && json.progressDetail.total) {
+                progress = Math.round((json.progressDetail.current / json.progressDetail.total) * 100);
+              } else if (json.status) {
+                if (json.status.includes('Downloading') || json.status.includes('Pulling')) {
+                  progress = Math.min((current.progress || 0) + 1, 99);
+                }
+              }
+              
+              let status = current.status;
+              if (json.status) {
+                status = json.status;
+              } else if (json.progressDetail) {
+                if (json.progressDetail.current && json.progressDetail.total) {
+                  status = 'Downloading layers';
+                }
+              }
+              
+              const updatedCurrent = pullProgress.get(progressId);
+              if (updatedCurrent && updatedCurrent.status !== 'cancelled') {
+                pullProgress.set(progressId, {
+                  status: status,
+                  progress: progress,
+                  logs: [...(updatedCurrent.logs || []), json],
+                  id: json.id || updatedCurrent.id,
+                  progressDetail: json.progressDetail || updatedCurrent.progressDetail,
+                  imageName: updatedCurrent.imageName || imageName,
+                });
+              }
+            } catch (parseError: any) {
+              // Silently skip invalid JSON lines (common with Docker stream)
+              // Only log if it's not a JSON parse error (which is expected)
+              if (!parseError.message?.includes('JSON') && !parseError.message?.includes('parse')) {
+                console.warn('Error processing pull progress line:', parseError.message);
+              }
+              // Continue processing other lines
+              continue;
             }
           }
-          
-          let status = current.status;
-          if (json.status) {
-            status = json.status;
-          } else if (json.progressDetail) {
-            if (json.progressDetail.current && json.progressDetail.total) {
-              status = 'Downloading layers';
-            }
-          }
-          
-          pullProgress.set(progressId, {
-            status: status,
-            progress: progress,
-            logs: [...(current.logs || []), json],
-            id: json.id || current.id,
-            progressDetail: json.progressDetail || current.progressDetail,
-            imageName: current.imageName || imageName,
-          });
         } catch (e: any) {
-          console.error('Error parsing pull progress:', e.message);
+          // Silently ignore parsing errors - they're common with Docker streams
+          // Only update status if we have a current progress
           const current = pullProgress.get(progressId);
-          if (current && current.status !== 'cancelled') {
+          if (current && current.status !== 'cancelled' && current.status !== 'Processing...') {
             pullProgress.set(progressId, {
               ...current,
               status: current.status || 'Processing...',

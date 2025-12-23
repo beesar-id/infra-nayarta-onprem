@@ -19,6 +19,7 @@ export const openApiSpec = {
     { name: 'Containers', description: 'Container management and monitoring' },
     { name: 'Compose', description: 'Docker Compose operations' },
     { name: 'Images', description: 'Docker image management' },
+    { name: 'Volumes', description: 'Docker volume management' },
   ],
   paths: {
     '/': {
@@ -377,6 +378,73 @@ export const openApiSpec = {
         responses: {
           '200': {
             description: 'Image deleted successfully',
+          },
+        },
+      },
+    },
+    '/api/volumes': {
+      get: {
+        summary: 'Get all volumes',
+        description: 'Get list of all Docker volumes',
+        tags: ['Volumes'],
+        responses: {
+          '200': {
+            description: 'List of volumes',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    volumes: { type: 'array' },
+                    count: { type: 'number' },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/volumes/{name}': {
+      get: {
+        summary: 'Get volume details',
+        description: 'Get detailed information about a specific volume',
+        tags: ['Volumes'],
+        parameters: [
+          {
+            name: 'name',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Volume details',
+          },
+          '404': {
+            description: 'Volume not found',
+          },
+        },
+      },
+      delete: {
+        summary: 'Delete volume',
+        description: 'Delete a Docker volume',
+        tags: ['Volumes'],
+        parameters: [
+          {
+            name: 'name',
+            in: 'path',
+            required: true,
+            schema: { type: 'string' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Volume deleted successfully',
+          },
+          '400': {
+            description: 'Failed to delete volume',
           },
         },
       },

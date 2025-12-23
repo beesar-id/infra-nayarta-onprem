@@ -6,6 +6,7 @@ import profileRoutes from './profile.routes';
 import containerRoutes from './container.routes';
 import composeRoutes from './compose.routes';
 import imageRoutes from './image.routes';
+import volumeRoutes from './volume.routes';
 
 const router = new Hono();
 
@@ -33,6 +34,7 @@ router.route('/api', profileRoutes);
 router.route('/api', containerRoutes);
 router.route('/api', composeRoutes);
 router.route('/api', imageRoutes);
+router.route('/api', volumeRoutes);
 
 export default router;
 

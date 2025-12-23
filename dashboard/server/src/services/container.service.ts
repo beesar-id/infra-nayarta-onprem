@@ -7,26 +7,52 @@ export class ContainerService {
     try {
       const containers = await docker.listContainers({ all: true });
       
-      const projectContainers = containers.filter((container) => {
-        const names = container.Names || [];
-        const image = container.Image || '';
-        
-        const isProjectContainer = 
-          names.some((name: string | string[]) => name.toString().includes('nayarta')) ||
-          image.includes('nayarta');
-        
-        if (!profile) {
-          return isProjectContainer;
+      // Inspect all containers in parallel to get labels
+      const inspectPromises = containers.map(async (container) => {
+        try {
+          const containerInstance = docker.getContainer(container.Id);
+          const inspect = await containerInstance.inspect();
+          return {
+            ...container,
+            labels: inspect.Config.Labels || {},
+          };
+        } catch (error) {
+          // If inspect fails, return container without labels
+          return {
+            ...container,
+            labels: {},
+          };
         }
-
-        const keywords = PROFILE_KEYWORDS[profile] || [];
-        return isProjectContainer && keywords.some(keyword => 
-          names.some(name => name.toLowerCase().includes(keyword)) ||
-          image.toLowerCase().includes(keyword)
-        );
       });
 
-      return projectContainers.map((container) => ({
+      const containersWithLabels = await Promise.all(inspectPromises);
+      
+      // Filter by label com.project.name=nayarta
+      const projectContainers = containersWithLabels.filter((container) => {
+        const labels = container.labels || {};
+        const projectName = labels['com.project.name'];
+        return projectName === 'nayarta';
+      });
+      
+      // If profile is specified, filter by profile keywords
+      let filteredContainers = projectContainers;
+      if (profile) {
+        const keywords = PROFILE_KEYWORDS[profile] || [];
+        filteredContainers = projectContainers.filter((container) => {
+          const names = container.Names || [];
+          const image = container.Image || '';
+          const labels = container.labels || {};
+          
+          // Check in names, image, or labels
+          return keywords.some(keyword => 
+            names.some((name: string | string[]) => name.toString().toLowerCase().includes(keyword)) ||
+            image.toLowerCase().includes(keyword) ||
+            Object.values(labels).some((labelValue: string) => labelValue.toLowerCase().includes(keyword))
+          );
+        });
+      }
+
+      return filteredContainers.map((container) => ({
         id: container.Id,
         name: container.Names?.[0]?.replace('/', '') || 'unknown',
         image: container.Image,
@@ -63,49 +89,57 @@ export class ContainerService {
     };
   }
 
-  async getContainerStats(id: string): Promise<ContainerStats> {
-    const container = docker.getContainer(id);
-    const stats = await container.stats({ stream: false });
-    
-    // Calculate CPU usage with null checks
-    let cpuPercent = 0;
-    if (stats.cpu_stats?.cpu_usage?.total_usage && stats.precpu_stats?.cpu_usage?.total_usage) {
-      const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
-      const systemDelta = (stats.cpu_stats.system_cpu_usage || 0) - (stats.precpu_stats.system_cpu_usage || 0);
-      const numCpus = stats.cpu_stats.online_cpus || 1;
-      cpuPercent = systemDelta > 0 ? (cpuDelta / systemDelta) * numCpus * 100 : 0;
+  async getContainerStats(id: string): Promise<ContainerStats | null> {
+    try {
+      const container = docker.getContainer(id);
+      const stats = await container.stats({ stream: false });
+      
+      // Calculate CPU usage with null checks
+      let cpuPercent = 0;
+      if (stats.cpu_stats?.cpu_usage?.total_usage && stats.precpu_stats?.cpu_usage?.total_usage) {
+        const cpuDelta = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
+        const systemDelta = (stats.cpu_stats.system_cpu_usage || 0) - (stats.precpu_stats.system_cpu_usage || 0);
+        const numCpus = stats.cpu_stats.online_cpus || 1;
+        cpuPercent = systemDelta > 0 ? (cpuDelta / systemDelta) * numCpus * 100 : 0;
+      }
+      
+      const memoryUsage = stats.memory_stats?.usage || 0;
+      const memoryLimit = stats.memory_stats?.limit || 0;
+      
+      const blkioStats = stats.blkio_stats?.io_service_bytes_recursive || [];
+      const diskRead = blkioStats.find((s: any) => s.op === 'Read')?.value || 0;
+      const diskWrite = blkioStats.find((s: any) => s.op === 'Write')?.value || 0;
+      
+      const networks = stats.networks || {};
+      let networkRx = 0;
+      let networkTx = 0;
+      Object.values(networks).forEach((net: any) => {
+        networkRx += net.rx_bytes || 0;
+        networkTx += net.tx_bytes || 0;
+      });
+      
+      return {
+        cpu: cpuPercent / 100,
+        memory: {
+          usage: memoryUsage,
+          limit: memoryLimit,
+        },
+        disk: {
+          read: diskRead,
+          write: diskWrite,
+        },
+        network: {
+          rx: networkRx,
+          tx: networkTx,
+        },
+      };
+    } catch (error: any) {
+      // Container not found or not running - return null instead of throwing
+      if (error.statusCode === 404 || error.message?.includes('no such container')) {
+        return null;
+      }
+      throw error;
     }
-    
-    const memoryUsage = stats.memory_stats?.usage || 0;
-    const memoryLimit = stats.memory_stats?.limit || 0;
-    
-    const blkioStats = stats.blkio_stats?.io_service_bytes_recursive || [];
-    const diskRead = blkioStats.find((s: any) => s.op === 'Read')?.value || 0;
-    const diskWrite = blkioStats.find((s: any) => s.op === 'Write')?.value || 0;
-    
-    const networks = stats.networks || {};
-    let networkRx = 0;
-    let networkTx = 0;
-    Object.values(networks).forEach((net: any) => {
-      networkRx += net.rx_bytes || 0;
-      networkTx += net.tx_bytes || 0;
-    });
-    
-    return {
-      cpu: cpuPercent / 100,
-      memory: {
-        usage: memoryUsage,
-        limit: memoryLimit,
-      },
-      disk: {
-        read: diskRead,
-        write: diskWrite,
-      },
-      network: {
-        rx: networkRx,
-        tx: networkTx,
-      },
-    };
   }
 
   async getAggregateStats(containerIds: string[]): Promise<ContainerStats> {
@@ -120,8 +154,13 @@ export class ContainerService {
     const statsPromises = containerIds.map(async (id: string) => {
       try {
         return await this.getContainerStats(id);
-      } catch (error) {
-        console.warn(`Failed to get stats for container ${id}:`, error);
+      } catch (error: any) {
+        // Silently ignore 404 errors (container not found/removed)
+        if (error.statusCode === 404 || error.message?.includes('no such container')) {
+          return null;
+        }
+        // Only log non-404 errors
+        console.warn(`Failed to get stats for container ${id.substring(0, 12)}:`, error.message || error);
         return null;
       }
     });

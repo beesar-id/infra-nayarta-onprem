@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Container, ContainerDetail, Profile, ComposeAction, Image, PullProgress } from '../types';
+import type { Container, ContainerDetail, Profile, ComposeAction, Image, PullProgress, Volume } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -91,6 +91,24 @@ export const apiService = {
   // Delete image
   deleteImage: async (imageId: string): Promise<{ success: boolean; message: string }> => {
     const response = await api.delete(`/api/images/${imageId}`);
+    return response.data;
+  },
+
+  // Get all volumes
+  getVolumes: async (): Promise<Volume[]> => {
+    const response = await api.get('/api/volumes');
+    return response.data.volumes;
+  },
+
+  // Get volume details
+  getVolumeDetails: async (name: string): Promise<Volume> => {
+    const response = await api.get(`/api/volumes/${name}`);
+    return response.data;
+  },
+
+  // Delete volume
+  deleteVolume: async (name: string): Promise<{ success: boolean; message: string }> => {
+    const response = await api.delete(`/api/volumes/${name}`);
     return response.data;
   },
 };

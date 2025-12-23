@@ -42,4 +42,19 @@ export interface PullProgress {
   error?: string;
 }
 
+export interface Volume {
+  name: string;
+  driver: string;
+  mountpoint: string;
+  created: number;
+  scope: string;
+  labels: Record<string, string>;
+  options: Record<string, string>;
+  status?: Record<string, any>;
+  usageData?: {
+    size: number;
+    refCount: number;
+  };
+}
+
 

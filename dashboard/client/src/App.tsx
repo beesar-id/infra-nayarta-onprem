@@ -3,9 +3,10 @@ import { ProfileSelector, PROFILE_DESCRIPTIONS } from './components/ProfileSelec
 import { ProfileControls } from './components/ProfileControls';
 import { ContainerList } from './components/ContainerList';
 import { ImageList } from './components/ImageList';
+import { VolumeList } from './components/VolumeList';
 import { SystemInformation } from './components/SystemInformation';
 import { apiService } from './services/api';
-import type { Container, Image, Profile } from './types';
+import type { Container, Image, Volume, Profile } from './types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -23,6 +24,8 @@ function App() {
   const [aggregateStats, setAggregateStats] = useState<any>(null);
   const [images, setImages] = useState<Image[]>([]);
   const [imagesLoading, setImagesLoading] = useState(false);
+  const [volumes, setVolumes] = useState<Volume[]>([]);
+  const [volumesLoading, setVolumesLoading] = useState(false);
 
   const loadProfiles = async () => {
     try {
@@ -91,6 +94,19 @@ function App() {
     }
   };
 
+  const loadVolumes = async () => {
+    try {
+      setVolumesLoading(true);
+      const volumeList = await apiService.getVolumes();
+      setVolumes(volumeList);
+    } catch (err: any) {
+      toast.error('Gagal memuat volumes');
+      console.error(err);
+    } finally {
+      setVolumesLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadProfiles();
   }, []);
@@ -105,6 +121,8 @@ function App() {
   useEffect(() => {
     if (activeTab === 'images') {
       loadImages();
+    } else if (activeTab === 'volumes') {
+      loadVolumes();
     }
   }, [activeTab]);
 
@@ -189,41 +207,7 @@ function App() {
               </TabsList>
             </Tabs>
 
-            <div className="flex items-center gap-2">
-              {selectedProfile !== 'all' && (
-                <ProfileControls
-                  profile={selectedProfile as Profile}
-                  onActionComplete={handleActionComplete}
-                />
-              )}
-              <Button 
-                onClick={() => loadContainers(true)} 
-                variant="outline"
-                size="sm"
-                disabled={loading}
-                className="border border-primary"
-              >
-                {loading ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                ) : (
-                  <>
-                    <RefreshCw className="mr-1 h-3 w-3" />
-                    Refresh
-                  </>
-                )}
-              </Button>
-              <ProfileSelector
-                selectedProfile={selectedProfile}
-                onProfileChange={handleProfileChange}
-                profiles={profiles}
-              />
-            </div>
           </div>
-          {selectedProfile && (
-            <p className="text-xs text-muted-foreground ml-auto text-right max-w-md">
-              {PROFILE_DESCRIPTIONS[selectedProfile]}
-            </p>
-          )}
         </div>
 
         {/* Content */}
@@ -264,17 +248,57 @@ function App() {
               </TabsContent>
 
               <TabsContent value="volumes" className="mt-0">
-                <Card className="border border-primary">
-                  <CardContent className="py-8 text-center">
-                    <p className="text-sm text-muted-foreground">Fitur Volumes akan segera hadir</p>
-                  </CardContent>
-                </Card>
+                {volumesLoading ? (
+                  <Card className="border border-primary">
+                    <CardContent className="py-8 text-center">
+                      <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
+                      <p className="mt-2 text-sm text-muted-foreground">Memuat volumes...</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <VolumeList
+                    volumes={volumes}
+                    onRefresh={loadVolumes}
+                  />
+                )}
               </TabsContent>
             </Tabs>
           </div>
 
           {/* System Information Sidebar */}
           <div className="lg:col-span-1">
+            <div className="mb-3">
+              <label className="text-xs font-medium text-muted-foreground mb-2 block">Profile</label>
+              <ProfileSelector
+                selectedProfile={selectedProfile}
+                onProfileChange={handleProfileChange}
+                profiles={profiles}
+              />
+              <div className="mt-3 space-y-2">
+                {selectedProfile !== 'all' && (
+                  <ProfileControls
+                    profile={selectedProfile as Profile}
+                    onActionComplete={handleActionComplete}
+                  />
+                )}
+                <Button 
+                  onClick={() => loadContainers(true)} 
+                  variant="outline"
+                  size="sm"
+                  disabled={loading}
+                  className="w-full border border-primary"
+                >
+                  {loading ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <>
+                      <RefreshCw className="mr-1 h-3 w-3" />
+                      Refresh
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
             <SystemInformation aggregateStats={aggregateStats} />
           </div>
         </div>

@@ -23,18 +23,23 @@ export const ProfileSelector: React.FC<ProfileSelectorProps> = ({
   profiles,
 }) => {
   return (
-    <Select value={selectedProfile} onValueChange={onProfileChange}>
-      <SelectTrigger className="w-48 border border-primary">
-        <SelectValue placeholder="Pilih Profile" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="all">Semua Container</SelectItem>
-        {profiles.map((profile) => (
-          <SelectItem key={profile} value={profile}>
-            {profile}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="space-y-2">
+      <Select value={selectedProfile} onValueChange={onProfileChange}>
+        <SelectTrigger className="w-full border border-primary">
+          <SelectValue placeholder="Pilih Profile" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Semua Container</SelectItem>
+          {profiles.map((profile) => (
+            <SelectItem key={profile} value={profile}>
+              {profile}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <div className="bg-muted/50 border border-dashed border-primary/30 rounded-md p-2">
+        <p className="text-xs text-muted-foreground">{PROFILE_DESCRIPTIONS[selectedProfile]}</p>
+      </div>
+    </div>
   );
 };
