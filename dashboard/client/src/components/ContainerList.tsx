@@ -119,6 +119,9 @@ export const ContainerList: React.FC<ContainerListProps> = ({
                     <p className="text-xs text-muted-foreground mb-0.5">Container Name</p>
                     <p className="font-medium text-sm truncate">{container.name}</p>
                     <p className="text-xs text-muted-foreground">
+                      ID: {container.id.substring(0, 12)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
                       {formatDate(container.created)}
                     </p>
                   </div>

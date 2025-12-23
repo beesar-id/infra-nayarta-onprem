@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { ProfileSelector } from './components/ProfileSelector';
+import { ProfileSelector, PROFILE_DESCRIPTIONS } from './components/ProfileSelector';
 import { ProfileControls } from './components/ProfileControls';
 import { ContainerList } from './components/ContainerList';
+import { ImageList } from './components/ImageList';
 import { SystemInformation } from './components/SystemInformation';
 import { apiService } from './services/api';
-import type { Container, Profile } from './types';
+import type { Container, Image, Profile } from './types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -20,6 +21,8 @@ function App() {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [activeTab, setActiveTab] = useState<'containers' | 'images' | 'volumes'>('containers');
   const [aggregateStats, setAggregateStats] = useState<any>(null);
+  const [images, setImages] = useState<Image[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
 
   const loadProfiles = async () => {
     try {
@@ -75,6 +78,19 @@ function App() {
     }
   };
 
+  const loadImages = async () => {
+    try {
+      setImagesLoading(true);
+      const imageList = await apiService.getImages();
+      setImages(imageList);
+    } catch (err: any) {
+      toast.error('Gagal memuat images');
+      console.error(err);
+    } finally {
+      setImagesLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadProfiles();
   }, []);
@@ -85,6 +101,12 @@ function App() {
     const interval = setInterval(() => loadContainers(false), 5000);
     return () => clearInterval(interval);
   }, [selectedProfile]);
+
+  useEffect(() => {
+    if (activeTab === 'images') {
+      loadImages();
+    }
+  }, [activeTab]);
 
   const handleProfileChange = (profile: Profile | 'all') => {
     setSelectedProfile(profile);
@@ -148,53 +170,60 @@ function App() {
         </div>
 
         {/* Tabs dengan Profile Selector di kanan */}
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'containers' | 'images' | 'volumes')} className="flex-1">
-            <TabsList>
-              <TabsTrigger value="containers" className="flex items-center gap-2">
-                <Package2 className="h-4 w-4" />
-                Containers
-              </TabsTrigger>
-              <TabsTrigger value="images" className="flex items-center gap-2">
-                <Disc3 className="h-4 w-4" />
-                Images
-              </TabsTrigger>
-              <TabsTrigger value="volumes" className="flex items-center gap-2">
-                <HardDrive className="h-4 w-4" />
-                Volumes
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+        <div className="mb-3">
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'containers' | 'images' | 'volumes')} className="flex-1">
+              <TabsList>
+                <TabsTrigger value="containers" className="flex items-center gap-2">
+                  <Package2 className="h-4 w-4" />
+                  Containers
+                </TabsTrigger>
+                <TabsTrigger value="images" className="flex items-center gap-2">
+                  <Disc3 className="h-4 w-4" />
+                  Images
+                </TabsTrigger>
+                <TabsTrigger value="volumes" className="flex items-center gap-2">
+                  <HardDrive className="h-4 w-4" />
+                  Volumes
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
 
-          <div className="flex items-center gap-2">
-            {selectedProfile !== 'all' && (
-              <ProfileControls
-                profile={selectedProfile as Profile}
-                onActionComplete={handleActionComplete}
-              />
-            )}
-            <Button 
-              onClick={() => loadContainers(true)} 
-              variant="outline"
-              size="sm"
-              disabled={loading}
-              className="border border-primary"
-            >
-              {loading ? (
-                <Loader2 className="h-3 w-3 animate-spin" />
-              ) : (
-                <>
-                  <RefreshCw className="mr-1 h-3 w-3" />
-                  Refresh
-                </>
+            <div className="flex items-center gap-2">
+              {selectedProfile !== 'all' && (
+                <ProfileControls
+                  profile={selectedProfile as Profile}
+                  onActionComplete={handleActionComplete}
+                />
               )}
-            </Button>
-            <ProfileSelector
-              selectedProfile={selectedProfile}
-              onProfileChange={handleProfileChange}
-              profiles={profiles}
-            />
+              <Button 
+                onClick={() => loadContainers(true)} 
+                variant="outline"
+                size="sm"
+                disabled={loading}
+                className="border border-primary"
+              >
+                {loading ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <>
+                    <RefreshCw className="mr-1 h-3 w-3" />
+                    Refresh
+                  </>
+                )}
+              </Button>
+              <ProfileSelector
+                selectedProfile={selectedProfile}
+                onProfileChange={handleProfileChange}
+                profiles={profiles}
+              />
+            </div>
           </div>
+          {selectedProfile && (
+            <p className="text-xs text-muted-foreground ml-auto text-right max-w-md">
+              {PROFILE_DESCRIPTIONS[selectedProfile]}
+            </p>
+          )}
         </div>
 
         {/* Content */}
@@ -219,11 +248,19 @@ function App() {
               </TabsContent>
 
               <TabsContent value="images" className="mt-0">
-                <Card className="border border-primary">
-                  <CardContent className="py-8 text-center">
-                    <p className="text-sm text-muted-foreground">Fitur Images akan segera hadir</p>
-                  </CardContent>
-                </Card>
+                {imagesLoading ? (
+                  <Card className="border border-primary">
+                    <CardContent className="py-8 text-center">
+                      <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
+                      <p className="mt-2 text-sm text-muted-foreground">Memuat images...</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <ImageList
+                    images={images}
+                    onRefresh={loadImages}
+                  />
+                )}
               </TabsContent>
 
               <TabsContent value="volumes" className="mt-0">

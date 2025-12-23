@@ -17,11 +17,29 @@ export interface ContainerDetail extends Container {
   env?: string[];
 }
 
-export type Profile = 'appstack' | 'analytics-tools' | 'app' | 'stream';
+export type Profile = 'appstack' | 'analytics-tools' | 'app' | 'stream' | 'stream-camera';
 
 export interface ComposeAction {
   profile: Profile;
   action: 'up' | 'down';
+}
+
+export interface Image {
+  id: string;
+  tags: string[];
+  size: number;
+  created: number;
+  parentId: string;
+  repoDigests: string[];
+}
+
+export interface PullProgress {
+  status: string;
+  progress: number;
+  logs: any[];
+  id?: string;
+  progressDetail?: any;
+  error?: string;
 }
 
 

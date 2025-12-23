@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Container, ContainerDetail, Profile, ComposeAction } from '../types';
+import type { Container, ContainerDetail, Profile, ComposeAction, Image, PullProgress } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
@@ -61,6 +61,36 @@ export const apiService = {
     const response = await api.post('/api/containers/stats/aggregate', {
       containerIds,
     });
+    return response.data;
+  },
+
+  // Get all images
+  getImages: async (): Promise<Image[]> => {
+    const response = await api.get('/api/images');
+    return response.data.images;
+  },
+
+  // Pull image
+  pullImage: async (imageName: string): Promise<{ success: boolean; progressId: string }> => {
+    const response = await api.post('/api/images/pull', { imageName });
+    return response.data;
+  },
+
+  // Get pull progress
+  getPullProgress: async (progressId: string): Promise<PullProgress> => {
+    const response = await api.get(`/api/images/pull/progress/${progressId}`);
+    return response.data;
+  },
+
+  // Cancel pull
+  cancelPull: async (progressId: string): Promise<{ success: boolean; message: string }> => {
+    const response = await api.post(`/api/images/pull/cancel/${progressId}`);
+    return response.data;
+  },
+
+  // Delete image
+  deleteImage: async (imageId: string): Promise<{ success: boolean; message: string }> => {
+    const response = await api.delete(`/api/images/${imageId}`);
     return response.data;
   },
 };
