@@ -14,7 +14,7 @@ networks:
 
 services:
   api:
-    profiles: ["app", "appstack", "all"]
+    profiles: ["app", "appstack", "all", "api"]
     image: beesar/beesar-vms-be:latest
     container_name: nayarta-vms-api
     restart: unless-stopped
@@ -108,7 +108,7 @@ services:
       - nayarta-network
 
   sse:
-    profiles: ["app", "appstack", "all"]
+    profiles: ["app", "appstack", "all", "sse"]
     image: beesar/beesar-vms-be:sse-latest
     container_name: nayarta-vms-sse
     restart: unless-stopped
@@ -205,7 +205,7 @@ services:
       - nayarta-network
 
   admin:
-    profiles: ["app","appstack", "all"]
+    profiles: ["app","appstack", "all","admin"]
     image: beesar/beesar-vms-admin:onprem-latest
     container_name: nayarta-vms-admin
     restart: unless-stopped
@@ -223,14 +223,14 @@ services:
       - nayarta-network
 
   frontend:
-    profiles: ["app", "appstack", "all"]
+    profiles: ["app", "appstack", "all", "frontend"]
     image: beesar/beesar-vms-cloud:onprem-latest
     container_name: nayarta-vms-frontend
     restart: unless-stopped
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
     ports:
-      - "80:3000"
+      - "8033:3000"
     # env_file:
     #   - .env
     environment:
