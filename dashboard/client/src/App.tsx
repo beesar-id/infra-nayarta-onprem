@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ProfileSelector, PROFILE_DESCRIPTIONS } from './components/ProfileSelector';
+import { ProfileSelector } from './components/ProfileSelector';
 import { ProfileControls } from './components/ProfileControls';
 import { ContainerList } from './components/ContainerList';
 import { ImageList } from './components/ImageList';
 import { VolumeList } from './components/VolumeList';
+import { ConfigEditor } from './components/ConfigEditor';
 import { SystemInformation } from './components/SystemInformation';
 import { apiService } from './services/api';
 import type { Container, Image, Volume, Profile } from './types';
@@ -12,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
-import { RefreshCw, Loader2, Activity, Square, Container as ContainerIcon, AlertCircle, Package2, Disc3, HardDrive } from 'lucide-react';
+import { RefreshCw, Loader2, Activity, Square, Container as ContainerIcon, AlertCircle, Package2, Disc3, HardDrive, Settings } from 'lucide-react';
 
 function App() {
   const [profiles, setProfiles] = useState<string[]>([]);
@@ -20,7 +21,7 @@ function App() {
   const [containers, setContainers] = useState<Container[]>([]);
   const [loading, setLoading] = useState(true);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
-  const [activeTab, setActiveTab] = useState<'containers' | 'images' | 'volumes'>('containers');
+  const [activeTab, setActiveTab] = useState<'containers' | 'images' | 'volumes' | 'config'>('containers');
   const [aggregateStats, setAggregateStats] = useState<any>(null);
   const [images, setImages] = useState<Image[]>([]);
   const [imagesLoading, setImagesLoading] = useState(false);
@@ -190,7 +191,7 @@ function App() {
         {/* Tabs dengan Profile Selector di kanan */}
         <div className="mb-3">
           <div className="flex items-center justify-between gap-2 mb-1">
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'containers' | 'images' | 'volumes')} className="flex-1">
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)} className="flex-1">
               <TabsList>
                 <TabsTrigger value="containers" className="flex items-center gap-2">
                   <Package2 className="h-4 w-4" />
@@ -204,6 +205,10 @@ function App() {
                   <HardDrive className="h-4 w-4" />
                   Volumes
                 </TabsTrigger>
+                <TabsTrigger value="config" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Config
+                </TabsTrigger>
               </TabsList>
             </Tabs>
 
@@ -214,7 +219,7 @@ function App() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           {/* Main Content - Table */}
           <div className="lg:col-span-3">
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'containers' | 'images' | 'volumes')}>
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
               <TabsContent value="containers" className="mt-0">
                 {loading && isInitialLoad ? (
                   <Card className="border border-primary">
@@ -261,6 +266,10 @@ function App() {
                     onRefresh={loadVolumes}
                   />
                 )}
+              </TabsContent>
+
+              <TabsContent value="config" className="mt-0">
+                <ConfigEditor />
               </TabsContent>
             </Tabs>
           </div>

@@ -111,5 +111,45 @@ export const apiService = {
     const response = await api.delete(`/api/volumes/${name}`);
     return response.data;
   },
+
+  // Get root .env content
+  getEnvConfig: async (): Promise<string> => {
+    const response = await api.get('/api/config/env', {
+      responseType: 'text',
+      transformResponse: (data) => data,
+    });
+    return response.data;
+  },
+
+  // Update root .env content
+  updateEnvConfig: async (content: string): Promise<{ success: boolean }> => {
+    const response = await api.put('/api/config/env', content, {
+      headers: { 'Content-Type': 'text/plain' },
+    });
+    return response.data;
+  },
+
+  // Get MediaMTX config
+  getMediamtxConfig: async (): Promise<string> => {
+    const response = await api.get('/api/config/mediamtx', {
+      responseType: 'text',
+      transformResponse: (data) => data,
+    });
+    return response.data;
+  },
+
+  // Update MediaMTX config
+  updateMediamtxConfig: async (content: string): Promise<{ success: boolean }> => {
+    const response = await api.put('/api/config/mediamtx', content, {
+      headers: { 'Content-Type': 'text/plain' },
+    });
+    return response.data;
+  },
+
+  // Update HOST_IP and SSE_ALLOW_ORIGINS
+  updateHostIp: async (ip: string): Promise<{ success: boolean; message: string }> => {
+    const response = await api.put('/api/config/host-ip', { ip });
+    return response.data;
+  },
 };
 
