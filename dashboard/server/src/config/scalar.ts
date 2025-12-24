@@ -20,6 +20,7 @@ export const openApiSpec = {
     { name: 'Compose', description: 'Docker Compose operations' },
     { name: 'Images', description: 'Docker image management' },
     { name: 'Volumes', description: 'Docker volume management' },
+    { name: 'Config', description: 'Project configuration files (.env, MediaMTX)' },
   ],
   paths: {
     '/': {
@@ -445,6 +446,134 @@ export const openApiSpec = {
           },
           '400': {
             description: 'Failed to delete volume',
+          },
+        },
+      },
+    },
+    '/api/config/env': {
+      get: {
+        summary: 'Get .env file content',
+        description: 'Read .env file content from project root',
+        tags: ['Config'],
+        responses: {
+          '200': {
+            description: '.env content',
+            content: {
+              'text/plain': {
+                schema: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
+      put: {
+        summary: 'Update .env file',
+        description: 'Overwrite .env file content at project root',
+        tags: ['Config'],
+        requestBody: {
+          required: true,
+          content: {
+            'text/plain': {
+              schema: {
+                type: 'string',
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: '.env updated successfully',
+          },
+        },
+      },
+    },
+    '/api/config/mediamtx': {
+      get: {
+        summary: 'Get MediaMTX config',
+        description: 'Read stream/config/mediamtx.yml content',
+        tags: ['Config'],
+        responses: {
+          '200': {
+            description: 'mediamtx.yml content',
+            content: {
+              'text/plain': {
+                schema: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+          '404': {
+            description: 'mediamtx.yml not found',
+          },
+        },
+      },
+      put: {
+        summary: 'Update MediaMTX config',
+        description: 'Overwrite stream/config/mediamtx.yml content',
+        tags: ['Config'],
+        requestBody: {
+          required: true,
+          content: {
+            'text/plain': {
+              schema: {
+                type: 'string',
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'mediamtx.yml updated successfully',
+          },
+        },
+      },
+    },
+    '/api/config/host-ip': {
+      put: {
+        summary: 'Update HOST_IP, SSE_ALLOW_ORIGINS, BASE_URL, and HOMEPAGE_URL',
+        description: 'Update HOST_IP variable, add IP to SSE_ALLOW_ORIGINS, and replace localhost with IP in BASE_URL and HOMEPAGE_URL in .env file',
+        tags: ['Config'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  ip: {
+                    type: 'string',
+                    description: 'IP address to set as HOST_IP, add to SSE_ALLOW_ORIGINS, and replace localhost in BASE_URL and HOMEPAGE_URL',
+                    example: '192.168.1.100',
+                  },
+                },
+                required: ['ip'],
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'HOST_IP, SSE_ALLOW_ORIGINS, BASE_URL, and HOMEPAGE_URL updated successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    message: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Invalid request (missing or invalid IP address)',
+          },
+          '500': {
+            description: 'Server error',
           },
         },
       },
