@@ -86,11 +86,11 @@ export class ConfigController {
   }
 
   /**
-   * @summary Pull Image by IP
+   * @summary Build Image by IP
    * @description Trigger GitHub Actions workflow to build image with specific IP
    * @tags Config
    */
-  static async pullImageByIp(c: Context) {
+  static async buildImageByIp(c: Context) {
     try {
       const body = await c.req.json();
       const { ip, githubToken } = body;
@@ -99,7 +99,7 @@ export class ConfigController {
         return c.json({ error: 'IP address is required' }, 400);
       }
 
-      const result = await ConfigService.pullImageByIp(ip, githubToken);
+      const result = await ConfigService.buildImageByIp(ip, githubToken);
       return c.json(result, 200);
     } catch (error: any) {
       return c.json({ error: error.message }, 500);

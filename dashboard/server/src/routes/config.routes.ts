@@ -34,10 +34,10 @@ router.put('/config/mediamtx', ConfigController.updateMediamtx);
 router.put('/config/host-ip', ConfigController.updateHostIp);
 
 /**
- * @route POST /api/config/pull-image
- * @summary Pull Image by IP
+ * @route POST /api/config/build-image
+ * @summary Build Image by IP
  */
-router.post('/config/pull-image', ConfigController.pullImageByIp);
+router.post('/config/build-image', ConfigController.buildImageByIp);
 
 /**
  * @route POST /api/config/reset-default

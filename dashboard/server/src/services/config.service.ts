@@ -325,11 +325,11 @@ export class ConfigService {
   }
 
   /**
-   * Pull image by IP - triggers GitHub Actions workflow
+   * Build image by IP - triggers GitHub Actions workflow
    * Format version: YYMMDD-{segment_pertama_dari_IP}
    * Example: IP 103.12.45.10 -> version 251228-103
    */
-  static async pullImageByIp(ip: string, githubToken?: string): Promise<{ success: boolean; message: string }> {
+  static async buildImageByIp(ip: string, githubToken?: string): Promise<{ success: boolean; message: string }> {
     // Validate IP format
     const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
     if (!ipRegex.test(ip)) {
