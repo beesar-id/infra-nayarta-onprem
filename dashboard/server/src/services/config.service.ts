@@ -11,6 +11,10 @@ export class ConfigService {
     return join(PROJECT_ROOT, 'stream', 'config', 'mediamtx.yml');
   }
 
+  private static getDockerComposePath() {
+    return join(PROJECT_ROOT, 'app', 'docker-compose.yml');
+  }
+
   static async getEnvFile(): Promise<string> {
     const path = this.getEnvPath();
     try {
@@ -317,6 +321,137 @@ export class ConfigService {
     } catch (error: any) {
       // Log error but don't throw - we don't want to fail the entire update if mediamtx update fails
       console.warn(`Failed to update mediamtx.yml webrtcAdditionalHosts: ${error.message}`);
+    }
+  }
+
+  /**
+   * Pull image by IP - triggers GitHub Actions workflow
+   * Format version: YYMMDD-{segment_pertama_dari_IP}
+   * Example: IP 103.12.45.10 -> version 251228-103
+   */
+  static async pullImageByIp(ip: string, githubToken?: string): Promise<{ success: boolean; message: string }> {
+    // Validate IP format
+    const ipRegex = /^(\d{1,3}\.){3}\d{1,3}$/;
+    if (!ipRegex.test(ip)) {
+      throw new Error('Invalid IP address format');
+    }
+
+    // Get GitHub token from parameter or environment
+    const token = githubToken || process.env.GH_PAT_TOKEN;
+    if (!token) {
+      throw new Error('GitHub PAT token is required. Please provide it in the request or set GH_PAT_TOKEN environment variable');
+    }
+
+    // Extract first segment from IP for version suffix
+    // Example: 103.12.45.10 -> 103
+    const ipSegments = ip.split('.');
+    const ipSuffix = ipSegments[0];
+
+    // Generate version: YYMMDD-{ip_suffix}
+    const now = new Date();
+    const year = now.getFullYear().toString().slice(-2); // Last 2 digits of year
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const version = `${year}${month}${day}-${ipSuffix}`;
+
+    // GitHub API endpoint
+    const githubApiUrl = 'https://api.github.com/repos/beesar-id/nayarta-vms-cloud/dispatches';
+
+    try {
+      const response = await fetch(githubApiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          event_type: 'build_with_ip',
+          client_payload: {
+            ip: ip,
+            version: version,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`GitHub API error: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+
+      // Update docker-compose.yml with new version
+      await this.updateDockerComposeImage(version);
+
+      return {
+        success: true,
+        message: `Successfully triggered image build for IP ${ip} with version ${version}`,
+      };
+    } catch (error: any) {
+      throw new Error(`Failed to trigger GitHub Actions workflow: ${error.message}`);
+    }
+  }
+
+  /**
+   * Update docker-compose.yml frontend image tag
+   */
+  private static async updateDockerComposeImage(version: string): Promise<void> {
+    const path = this.getDockerComposePath();
+    try {
+      const content = await fs.readFile(path, 'utf8');
+      
+      // Replace frontend image tag
+      // Match: image: beesar/beesar-vms-cloud:onprem-latest or image: beesar/beesar-vms-cloud:{any-version}
+      const updatedContent = content.replace(
+        /(image:\s+beesar\/beesar-vms-cloud:)([^\s\n]+)/,
+        `$1${version}`
+      );
+      
+      await fs.writeFile(path, updatedContent, 'utf8');
+    } catch (error: any) {
+      // Log error but don't throw - we don't want to fail the entire operation if docker-compose update fails
+      console.warn(`Failed to update docker-compose.yml image tag: ${error.message}`);
+    }
+  }
+
+  /**
+   * Reset to default values: image tag to onprem-latest and IP to localhost
+   */
+  static async resetToDefault(): Promise<{ success: boolean; message: string }> {
+    try {
+      // Reset docker-compose.yml image to onprem-latest
+      const dockerComposePath = this.getDockerComposePath();
+      const dockerComposeContent = await fs.readFile(dockerComposePath, 'utf8');
+      const updatedDockerCompose = dockerComposeContent.replace(
+        /(image:\s+beesar\/beesar-vms-cloud:)([^\s\n]+)/,
+        '$1onprem-latest'
+      );
+      await fs.writeFile(dockerComposePath, updatedDockerCompose, 'utf8');
+
+      // Reset .env HOST_IP to localhost
+      const envPath = this.getEnvPath();
+      const envContent = await fs.readFile(envPath, 'utf8');
+      
+      // Update HOST_IP
+      let updatedEnv = envContent.replace(/^HOST_IP=.*$/m, 'HOST_IP=localhost');
+      
+      // Update SSE_ALLOW_ORIGINS to only include localhost
+      updatedEnv = updatedEnv.replace(/^SSE_ALLOW_ORIGINS=.*$/m, 'SSE_ALLOW_ORIGINS=http://localhost');
+      
+      // Update BASE_URL and HOMEPAGE_URL to use localhost
+      updatedEnv = updatedEnv.replace(/^BASE_URL=.*$/m, 'BASE_URL=http://localhost:8457/api/v1');
+      updatedEnv = updatedEnv.replace(/^HOMEPAGE_URL=.*$/m, 'HOMEPAGE_URL=http://localhost:80');
+      
+      await fs.writeFile(envPath, updatedEnv, 'utf8');
+
+      // Reset mediamtx.yml webrtcAdditionalHosts
+      await this.updateMediamtxWebrtcHosts('localhost', null);
+
+      return {
+        success: true,
+        message: 'Successfully reset to default values (image: onprem-latest, IP: localhost)',
+      };
+    } catch (error: any) {
+      throw new Error(`Failed to reset to default: ${error.message}`);
     }
   }
 }

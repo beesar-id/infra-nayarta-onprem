@@ -84,6 +84,41 @@ export class ConfigController {
       return c.json({ error: error.message }, 500);
     }
   }
+
+  /**
+   * @summary Pull Image by IP
+   * @description Trigger GitHub Actions workflow to build image with specific IP
+   * @tags Config
+   */
+  static async pullImageByIp(c: Context) {
+    try {
+      const body = await c.req.json();
+      const { ip, githubToken } = body;
+      
+      if (!ip || typeof ip !== 'string') {
+        return c.json({ error: 'IP address is required' }, 400);
+      }
+
+      const result = await ConfigService.pullImageByIp(ip, githubToken);
+      return c.json(result, 200);
+    } catch (error: any) {
+      return c.json({ error: error.message }, 500);
+    }
+  }
+
+  /**
+   * @summary Reset to Default
+   * @description Reset docker-compose.yml image to onprem-latest and HOST_IP to localhost
+   * @tags Config
+   */
+  static async resetToDefault(c: Context) {
+    try {
+      const result = await ConfigService.resetToDefault();
+      return c.json(result, 200);
+    } catch (error: any) {
+      return c.json({ error: error.message }, 500);
+    }
+  }
 }
 
 

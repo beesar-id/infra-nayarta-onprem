@@ -533,7 +533,7 @@ export const openApiSpec = {
     },
     '/api/config/host-ip': {
       put: {
-        summary: 'Update HOST_IP, SSE_ALLOW_ORIGINS, BASE_URL, and HOMEPAGE_URL',
+        summary: 'Update HOST_IP',
         description: 'Update HOST_IP variable, add IP to SSE_ALLOW_ORIGINS, and replace localhost with IP in BASE_URL and HOMEPAGE_URL in .env file',
         tags: ['Config'],
         requestBody: {
@@ -574,6 +574,84 @@ export const openApiSpec = {
           },
           '500': {
             description: 'Server error',
+          },
+        },
+      },
+    },
+    '/api/config/build-image': {
+      post: {
+        summary: 'Build Image by IP',
+        description: 'Trigger GitHub Actions workflow to build image with specific IP. Version format: YYMMDD-{first_segment_of_IP}. Example: 251229-192. This will update the docker-compose.yml image to the new version.',
+        tags: ['Config'],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['ip', 'githubToken'],
+                properties: {
+                  ip: {
+                    type: 'string',
+                    description: 'IP address (e.g., 103.12.45.10)',
+                    example: '103.12.45.10',
+                  },
+                  githubToken: {
+                    type: 'string',
+                    description: 'GitHub Personal Access Token (PAT)',
+                    example: 'ghp_xxxxxxxxxxxxxxxxxxxx',
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Successfully triggered image build',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    message: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Bad request - IP address is required',
+          },
+          '500': {
+            description: 'Internal server error',
+          },
+        },
+      },
+    },
+    '/api/config/reset-default': {
+      post: {
+        summary: 'Reset to Default',
+        description: 'Reset docker-compose.yml image to onprem-latest and HOST_IP to localhost',
+        tags: ['Config'],
+        responses: {
+          '200': {
+            description: 'Successfully reset to default values',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean' },
+                    message: { type: 'string' },
+                  },
+                },
+              },
+            },
+          },
+          '500': {
+            description: 'Internal server error',
           },
         },
       },

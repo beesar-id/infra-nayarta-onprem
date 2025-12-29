@@ -33,6 +33,18 @@ router.put('/config/mediamtx', ConfigController.updateMediamtx);
  */
 router.put('/config/host-ip', ConfigController.updateHostIp);
 
+/**
+ * @route POST /api/config/pull-image
+ * @summary Pull Image by IP
+ */
+router.post('/config/pull-image', ConfigController.pullImageByIp);
+
+/**
+ * @route POST /api/config/reset-default
+ * @summary Reset to Default
+ */
+router.post('/config/reset-default', ConfigController.resetToDefault);
+
 export default router;
 
 
