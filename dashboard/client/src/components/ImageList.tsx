@@ -3,7 +3,6 @@ import { apiService } from '../services/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
@@ -44,25 +43,45 @@ export const ImageList: React.FC<ImageListProps> = ({
       const interval = setInterval(async () => {
         try {
           const progress = await apiService.getPullProgress(progressId);
-          setPullProgress(progress);
-          
-          if (progress.status === 'completed' || progress.status === 'error' || progress.status === 'cancelled') {
-            setIsPulling(false);
-            setProgressId(null);
-            clearInterval(interval);
+          if (progress) {
+            setPullProgress(progress);
             
-            if (progress.status === 'completed') {
-              toast.success('Image pulled successfully');
-              setShowPullDialog(false);
-              setPullImageName('');
-              setPullingImageId(null);
-              onRefresh();
-            } else if (progress.status === 'cancelled') {
-              // Don't show toast here, it's already shown in handleCancelPull
-              setPullingImageId(null);
-            } else {
-              toast.error(progress.error || 'Failed to pull image');
-              setPullingImageId(null);
+            // Auto-scroll to bottom when new logs arrive
+            setTimeout(() => {
+              const container = document.getElementById('progress-logs-container');
+              if (container) {
+                container.scrollTop = container.scrollHeight;
+              }
+            }, 100);
+            
+            // Check if completed, error, cancelled, or up to date
+            if (progress.status === 'completed' || 
+                progress.status === 'error' || 
+                progress.status === 'cancelled' || 
+                progress.status === 'Image is up to date') {
+              setIsPulling(false);
+              setProgressId(null);
+              clearInterval(interval);
+              
+              // Small delay to ensure UI updates before closing
+              setTimeout(() => {
+                if (progress.status === 'completed' || progress.status === 'Image is up to date') {
+                  const message = progress.status === 'Image is up to date' 
+                    ? 'Image is already up to date' 
+                    : 'Image pulled successfully';
+                  toast.success(message);
+                  setShowPullDialog(false);
+                  setPullImageName('');
+                  setPullingImageId(null);
+                  onRefresh();
+                } else if (progress.status === 'cancelled') {
+                  // Don't show toast here, it's already shown in handleCancelPull
+                  setPullingImageId(null);
+                } else {
+                  toast.error(progress.error || 'Failed to pull image');
+                  setPullingImageId(null);
+                }
+              }, 1000); // Increased delay to show final status
             }
           }
         } catch (error: any) {
@@ -78,7 +97,7 @@ export const ImageList: React.FC<ImageListProps> = ({
             // The progress might still be updating on backend
           }
         }
-      }, 500);
+      }, 300); // Poll more frequently for better responsiveness
       
       return () => clearInterval(interval);
     }
@@ -410,124 +429,60 @@ export const ImageList: React.FC<ImageListProps> = ({
             </DialogTitle>
             <DialogDescription>
               {!pullProgress ? (
-                'Initializing pull...'
-              ) : pullProgress.status === 'starting' ? (
-                'Connecting to registry and preparing to download...'
+                'Connecting to registry...'
               ) : pullProgress.status === 'completed' ? (
                 'Image pulled successfully!'
+              ) : pullProgress.status === 'Image is up to date' ? (
+                'Image is already up to date'
               ) : pullProgress.status === 'cancelled' ? (
                 'Pull operation was cancelled.'
               ) : pullProgress.status === 'error' ? (
-                'An error occurred while pulling the image.'
+                `Error: ${pullProgress.error || 'An error occurred while pulling the image.'}`
+              ) : pullProgress.status ? (
+                pullProgress.status
               ) : (
-                `Downloading image layers... ${pullProgress.progress}% complete`
+                'Processing...'
               )}
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4 mt-4">
-            {/* Progress Bar */}
-            {pullProgress ? (
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Progress</span>
-                  <span className="font-medium">
-                    {pullProgress.progress}%
-                    {isPulling && pullProgress.progress < 100 && (
-                      <Loader2 className="h-3 w-3 inline-block ml-2 animate-spin" />
-                    )}
-                  </span>
-                </div>
-                <Progress value={pullProgress.progress} />
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Progress</span>
-                  <span className="font-medium">
-                    <Loader2 className="h-3 w-3 inline-block animate-spin" /> Initializing...
-                  </span>
-                </div>
-                <Progress value={0} />
-              </div>
-            )}
-
-            {/* Status with more detail */}
+            {/* Status Badge */}
             <div>
-              <p className="text-sm font-medium mb-1">Status:</p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Badge 
                   variant="outline"
                   className={
-                    pullProgress?.status === 'completed' 
+                    pullProgress?.status === 'completed' || pullProgress?.status === 'Image is up to date'
                       ? 'border-green-500 text-green-700 bg-green-50' 
                       : pullProgress?.status === 'error' || pullProgress?.status === 'cancelled'
                       ? 'border-red-500 text-red-700 bg-red-50'
                       : 'border-primary'
                   }
                 >
-                  {pullProgress?.status || 'starting'}
+                  {pullProgress?.status || 'Connecting to registry...'}
+                  {isPulling && pullProgress && 
+                   pullProgress.status !== 'completed' && 
+                   pullProgress.status !== 'Image is up to date' && 
+                   pullProgress.status !== 'error' && 
+                   pullProgress.status !== 'cancelled' && (
+                    <Loader2 className="h-3 w-3 inline-block ml-2 animate-spin" />
+                  )}
                 </Badge>
-                {isPulling && pullProgress && pullProgress.status !== 'completed' && (
-                  <span className="text-xs text-muted-foreground">
-                    {pullProgress.status === 'starting' && 'Preparing download...'}
-                    {pullProgress.status && pullProgress.status.includes('Downloading') && 'Downloading layers...'}
-                    {pullProgress.status && pullProgress.status.includes('Extracting') && 'Extracting layers...'}
-                    {pullProgress.status && pullProgress.status.includes('Pulling') && 'Pulling from registry...'}
-                    {pullProgress.status && pullProgress.status.includes('Waiting') && 'Waiting for download...'}
-                    {pullProgress.status && pullProgress.status.includes('Verifying') && 'Verifying checksum...'}
-                    {!pullProgress.status?.includes('Downloading') && 
-                     !pullProgress.status?.includes('Extracting') && 
-                     !pullProgress.status?.includes('Pulling') &&
-                     !pullProgress.status?.includes('Waiting') &&
-                     !pullProgress.status?.includes('Verifying') &&
-                     pullProgress.status !== 'starting' &&
-                     pullProgress.status !== 'completed' &&
-                     'Processing...'}
-                  </span>
-                )}
               </div>
             </div>
 
-            {/* Current Activity */}
-            {pullProgress && pullProgress.logs && pullProgress.logs.length > 0 && (
-              <div>
-                <p className="text-sm font-medium mb-2">Current Activity:</p>
-                <div className="bg-muted rounded-md p-3">
-                  {(() => {
-                    const lastLog = pullProgress.logs[pullProgress.logs.length - 1];
-                    if (lastLog?.status) {
-                      return (
-                        <div className="text-sm">
-                          <p className="font-medium text-foreground">{lastLog.status}</p>
-                          {lastLog.progress && (
-                            <p className="text-xs text-muted-foreground mt-1">{lastLog.progress}</p>
-                          )}
-                          {lastLog.id && (
-                            <p className="text-xs text-muted-foreground mt-1">Layer ID: {lastLog.id}</p>
-                          )}
-                        </div>
-                      );
-                    }
-                    return <p className="text-sm text-muted-foreground">Processing...</p>;
-                  })()}
-                </div>
-              </div>
-            )}
-
-            {/* Detailed Logs (Collapsible) */}
-            {pullProgress && pullProgress.logs && pullProgress.logs.length > 0 && (
-              <details className="group">
-                <summary className="cursor-pointer text-sm font-medium mb-2 list-none">
-                  <span className="flex items-center gap-2">
-                    Detailed Logs ({pullProgress.logs.length} entries)
-                    <span className="text-xs text-muted-foreground group-open:hidden">(Click to expand)</span>
-                  </span>
-                </summary>
-                <div className="bg-muted rounded-md p-3 max-h-64 overflow-y-auto mt-2">
+            {/* Progress Logs */}
+            <div>
+              <p className="text-sm font-medium mb-2">Progress Logs:</p>
+              <div 
+                id="progress-logs-container"
+                className="bg-muted rounded-md p-4 max-h-[400px] overflow-y-auto"
+              >
+                {pullProgress && pullProgress.logs && pullProgress.logs.length > 0 ? (
                   <div className="space-y-1 font-mono text-xs">
-                    {pullProgress.logs.slice(-30).map((log: any, idx: number) => (
-                      <div key={idx} className="text-muted-foreground">
+                    {pullProgress.logs.map((log: any, idx: number) => (
+                      <div key={idx} className="text-foreground">
                         {log.status && (
                           <span className="text-foreground">{log.status}</span>
                         )}
@@ -537,12 +492,22 @@ export const ImageList: React.FC<ImageListProps> = ({
                         {log.id && (
                           <span className="ml-2 text-muted-foreground">[{log.id}]</span>
                         )}
+                        {log.progressDetail && log.progressDetail.current && log.progressDetail.total && (
+                          <span className="ml-2 text-muted-foreground">
+                            ({Math.round((log.progressDetail.current / log.progressDetail.total) * 100)}%)
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>
-                </div>
-              </details>
-            )}
+                ) : (
+                  <div className="text-sm text-muted-foreground flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Waiting for logs...
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Error */}
             {pullProgress?.error && (
