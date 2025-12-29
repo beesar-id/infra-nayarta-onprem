@@ -57,6 +57,9 @@ services:
     profiles: ["all", "watchtower"]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=watchtower"
     environment:
       # Check for updates every 1 hour (3600 seconds)
       - WATCHTOWER_POLL_INTERVAL=300

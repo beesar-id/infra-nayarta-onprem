@@ -107,8 +107,8 @@ hlsSegmentCount: 20
 hlsAllowOrigin: '*'
 hlsEncryption: no
 hlsSegmentMaxSize: 50MB
-hlsServerKey: /etc/letsencrypt/live/stream.nayarta.id-0001/privkey.pem
-hlsServerCert: /etc/letsencrypt/live/stream.nayarta.id-0001/fullchain.pem
+# hlsServerKey: /etc/letsencrypt/live/stream.nayarta.id-0001/privkey.pem
+# hlsServerCert: /etc/letsencrypt/live/stream.nayarta.id-0001/fullchain.pem
 # Variant of the HLS protocol to use. Available options are:
 # * mpegts - uses MPEG-TS segments, for maximum compatibility.
 # * fmp4 - uses fragmented MP4 segments, more efficient.

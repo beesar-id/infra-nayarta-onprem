@@ -20,6 +20,9 @@ services:
       - CH_TCP_PORT=${CLICKHOUSE_TCP_PORT:-9000}
     networks:
       - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=migration"
     command: >
       sh -c "
       echo 'Running Postgres migrations...' &&
@@ -40,6 +43,8 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_HOST=${DB_HOST:-nayarta-postgres}
       - DB_PORT=${DB_PORT:-5432}
-
     networks:
       - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=migration"

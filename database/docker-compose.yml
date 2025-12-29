@@ -38,6 +38,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=database"
 
   postgres-backup:
     profiles: ["dbbackup", "postgresbackup"]
@@ -54,6 +57,9 @@ services:
       - ./scripts/backup.sh:/backup.sh:ro
     networks:
       - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=database"
     # depends_on:
     #   - postgres
     command: ["bash", "/backup.sh"]
@@ -74,6 +80,9 @@ services:
       - ./scripts/restore.sh:/restore.sh:ro
     networks:
       - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=database"
     # depends_on:
     #   - postgres
     command: ["bash", "/restore.sh"]

@@ -42,12 +42,12 @@ services:
       - PIPMAN_URL=${PIPMAN_URL:-http://${HOST_IP:-localhost}:8000}
 
       # ========= CLICKHOUSE =========
-      - ch_host = ${CLICKHOUSE_HOST:-localhost}
-      - ch_uname = ${CLICKHOUSE_USER:-default}
-      - ch_password = ${CLICKHOUSE_PASSWORD:-beEs4rP@ssW0rD!}
-      - ch_port = ${CLICKHOUSE_PORT:-8124}
-      - ch_dbname = ${CLICKHOUSE_DB:-default}
-      - ch_secure = ${CLICKHOUSE_SECURE:-False}
+      - ch_host=${CLICKHOUSE_HOST:-localhost}
+      - ch_uname=${CLICKHOUSE_USER:-default}
+      - ch_password=${CLICKHOUSE_PASSWORD:-beEs4rP@ssW0rD!}
+      - ch_port=${CLICKHOUSE_PORT:-8124}
+      - ch_dbname=${CLICKHOUSE_DB:-default}
+      - ch_secure=${CLICKHOUSE_SECURE:-False}
 
       # ========= RABBITMQ =========
       - RMQ_USER=${RABBITMQ_USER:-queueuser}
@@ -56,22 +56,22 @@ services:
       - RMQ_PORT=${RABBITMQ_PORT:-5672}
 
       # ========= MQTT =========
-      - MQTT_BROKER = ${MQTT_BROKER:-localhost}
-      - MQTT_PORT = ${MQTT_PORT:-1883}
-      - MQTT_TOPIC = ${MQTT_TOPIC:-nayai/analytic_update}
-      - MQTT_UNAME = ${MQTT_USER:-mqttuser}
-      - MQTT_PASS = ${MQTT_PASSWORD:-mqttpassword}
+      - MQTT_BROKER=${MQTT_BROKER:-localhost}
+      - MQTT_PORT=${MQTT_PORT:-1883}
+      - MQTT_TOPIC=${MQTT_TOPIC:-nayai/analytic_update}
+      - MQTT_UNAME=${MQTT_USER:-mqttuser}
+      - MQTT_PASS=${MQTT_PASSWORD:-mqttpassword}
 
       # ========= POSTGRES =========
-      - PG_HOST = ${DB_HOST_ANALYTICS:-localhost}
-      - PG_PORT = ${DB_PORT_ANALYTICS:-5432}
-      - PG_DB = ${DB_NAME_ANALYTICS:-analytics_db}
-      - PG_USER = ${DB_USER_ANALYTICS:-admin}
-      - PG_PASS = ${DB_PASSWORD_ANALYTICS:-admin122}
+      - PG_HOST=${DB_HOST_ANALYTICS:-localhost}
+      - PG_PORT=${DB_PORT_ANALYTICS:-5432}
+      - PG_DB=${DB_NAME_ANALYTICS:-analytics_db}
+      - PG_USER=${DB_USER_ANALYTICS:-admin}
+      - PG_PASS=${DB_PASSWORD_ANALYTICS:-admin122}
 
       # ========= DIRECTORIES =========
-      - RUNTIME_FOLDER = ${RUNTIME_FOLDER:-/home/beesar/nayarta-single-deployment/analytics/pipeline}
-      - LOG_FOLDER = ${LOG_FOLDER:-./logs}
+      - RUNTIME_FOLDER=${RUNTIME_FOLDER:-/home/beesar/nayarta-single-deployment/analytics/pipeline}
+      - LOG_FOLDER=${LOG_FOLDER:-./logs}
     command: python pipman.py
     networks:
       - nayarta-network
@@ -94,7 +94,6 @@ services:
     environment:
       # Debug Mode
       - DEBUG=${DEBUG:-False}
-
       # ========= NAYARTA =========
       - NAYARTA_URL=${API_BASE_URL_ANALYTICS:-http://localhost:8457}
       - NAYARTA_STREAM_URL=${NAYARTA_STREAM_URL:-rtsp://localhost:8554/}
@@ -102,12 +101,12 @@ services:
       - PIPMAN_URL=${PIPMAN_URL:-http://${HOST_IP:-localhost}:8000}
 
       # ========= CLICKHOUSE =========
-      - ch_host = ${CLICKHOUSE_HOST:-localhost}
-      - ch_uname = ${CLICKHOUSE_USER:-default}
-      - ch_password = ${CLICKHOUSE_PASSWORD:-beEs4rP@ssW0rD!}
-      - ch_port = ${CLICKHOUSE_PORT:-8124}
-      - ch_dbname = ${CLICKHOUSE_DB:-default}
-      - ch_secure = ${CLICKHOUSE_SECURE:-False}
+      - ch_host=${CLICKHOUSE_HOST:-localhost}
+      - ch_uname=${CLICKHOUSE_USER:-default}
+      - ch_password=${CLICKHOUSE_PASSWORD:-beEs4rP@ssW0rD!}
+      - ch_port=${CLICKHOUSE_PORT:-8124}
+      - ch_dbname=${CLICKHOUSE_DB:-default}
+      - ch_secure=${CLICKHOUSE_SECURE:-False}
 
       # ========= RABBITMQ =========
       - RMQ_USER=${RABBITMQ_USER:-queueuser}
@@ -116,22 +115,22 @@ services:
       - RMQ_PORT=${RABBITMQ_PORT:-5672}
 
       # ========= MQTT =========
-      - MQTT_BROKER = ${MQTT_BROKER:-localhost}
-      - MQTT_PORT = ${MQTT_PORT:-1883}
-      - MQTT_TOPIC = ${MQTT_TOPIC:-nayai/analytic_update}
-      - MQTT_UNAME = ${MQTT_USER:-mqttuser}
-      - MQTT_PASS = ${MQTT_PASSWORD:-mqttpassword}
+      - MQTT_BROKER=${MQTT_BROKER:-localhost}
+      - MQTT_PORT=${MQTT_PORT:-1883}
+      - MQTT_TOPIC=${MQTT_TOPIC:-nayai/analytic_update}
+      - MQTT_UNAME=${MQTT_USER:-mqttuser}
+      - MQTT_PASS=${MQTT_PASSWORD:-mqttpassword}
 
       # ========= POSTGRES =========
-      - PG_HOST = ${DB_HOST_ANALYTICS:-localhost}
-      - PG_PORT = ${DB_PORT_ANALYTICS:-5432}
-      - PG_DB = ${DB_NAME_ANALYTICS:-analytics_db}
-      - PG_USER = ${DB_USER_ANALYTICS:-admin}
-      - PG_PASS = ${DB_PASSWORD_ANALYTICS:-admin122}
+      - PG_HOST=${DB_HOST_ANALYTICS:-localhost}
+      - PG_PORT=${DB_PORT_ANALYTICS:-5432}
+      - PG_DB=${DB_NAME_ANALYTICS:-analytics_db}
+      - PG_USER=${DB_USER_ANALYTICS:-admin}
+      - PG_PASS=${DB_PASSWORD_ANALYTICS:-admin122}
 
       # ========= DIRECTORIES =========
-      - RUNTIME_FOLDER = ${RUNTIME_FOLDER:-./app/evidence}
-      - LOG_FOLDER = ${LOG_FOLDER:-./app/logs}
+      - RUNTIME_FOLDER=${RUNTIME_FOLDER:-./app/evidence}
+      - LOG_FOLDER=${LOG_FOLDER:-./app/logs}
 
       # ========= YOLO =========
       - YOLO_CONFIG_DIR=/app/.ultralytics

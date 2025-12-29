@@ -30,6 +30,9 @@ services:
       - MTX_CONF=/mediamtx.yml
     networks:
       - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=stream"
 
   mediamtx-nvr:
     profiles: ["stream","stream-nvr", "mediamtx-nvr", "all", "appstack"]
@@ -47,6 +50,9 @@ services:
       - MTX_CONF=/mediamtx.yml
     networks:
       - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=stream-nvr"
   
   mediamtx-cam:
     profiles: ["stream-camera",]
@@ -57,6 +63,9 @@ services:
     restart: unless-stopped
     networks:
       - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=stream-camera"
 
   stream-test-cam1:
     image: linuxserver/ffmpeg
@@ -67,6 +76,10 @@ services:
       - ./video:/videos
     networks:
       - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=stream-camera"
+      - "com.project.profile.cam1=true"
 
   stream-test-cam2:
     image: linuxserver/ffmpeg
@@ -77,6 +90,10 @@ services:
       - ./video:/videos
     networks:
       - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=stream-camera"
+      - "com.project.profile.cam2=true"
 
   stream-test-cam3:
     image: linuxserver/ffmpeg
@@ -87,6 +104,10 @@ services:
       - ./video:/videos
     networks:
       - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=stream-camera"
+      - "com.project.profile.cam3=true"
 
   stream-test-cam4:
     image: linuxserver/ffmpeg
@@ -97,9 +118,13 @@ services:
       - ./video:/videos
     networks:
       - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=stream-camera"
+      - "com.project.profile.cam4=true"
 
   emqx:
-    profiles: ["stream", "mqtt", "all", "appstack"]
+    profiles: ["mqtt", "all", "appstack"]
     image: emqx/emqx:5.7.1
     container_name: nayarta-mqtt
     restart: unless-stopped
@@ -149,6 +174,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=mqtt"
 
   # emqx-init:
   #   profiles: ["stream", "mqtt", "all", "appstack"]

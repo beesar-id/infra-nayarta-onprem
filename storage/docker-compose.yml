@@ -37,6 +37,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=storage"
 
   minio-init:
     profiles: ["storage", "all", "appstack"]
@@ -57,6 +60,9 @@ services:
       MINIO_BUCKETS: ${OBJECT_STORAGE_DEFAULT_BUCKET:-nayarta-storage}
     networks:
       - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=storage"
     entrypoint: >
       /bin/sh -c "
       sleep 10;

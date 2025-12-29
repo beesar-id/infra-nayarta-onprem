@@ -65,6 +65,9 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=clickhouse"
 
   ch-ui:
     profiles: ["clickhouse", "all", "analytics"]
@@ -84,6 +87,9 @@ services:
     depends_on:
       ch-server:
         condition: service_healthy
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=clickhouse"
 
   # ch-proxy:
   #   profiles: ["clickhouse", "all", "analytics"]

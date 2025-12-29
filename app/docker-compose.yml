@@ -20,6 +20,8 @@ services:
     restart: unless-stopped
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
+      - "com.project.name=nayarta"
+      - "com.project.profile=api"
     ports:
       - "8457:8080"
     # env_file:
@@ -114,13 +116,15 @@ services:
     restart: unless-stopped
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
+      - "com.project.name=nayarta"
+      - "com.project.profile=sse"
     ports:
       - "8458:8080"
     # env_file:
     #   - .env
     environment:
       # CORS Origin
-      - ALLOW_ORIGINS=${ALLOW_ORIGINS:-http://localhost,http://localhost:8456,http://localhost:8457,http://localhost:3000}
+      - ALLOW_ORIGINS=${SSE_ALLOW_ORIGINS:-http://localhost,http://localhost:8456,http://localhost:8457,http://localhost:3000}
 
       # SSE Configuration
       - SSE_PORT=${SSE_PORT:-8080}
@@ -210,6 +214,8 @@ services:
     container_name: nayarta-vms-admin
     restart: unless-stopped
     labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=admin"
       - "com.centurylinklabs.watchtower.enable=true"
     ports:
       - "8456:3000"
@@ -224,10 +230,12 @@ services:
 
   frontend:
     profiles: ["app", "appstack", "all", "frontend"]
-    image: beesar/beesar-vms-cloud:onprem-latest
+    image: beesar/beesar-vms-cloud:251229-192
     container_name: nayarta-vms-frontend
     restart: unless-stopped
     labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=frontend"
       - "com.centurylinklabs.watchtower.enable=true"
     ports:
       - "8033:3000"
