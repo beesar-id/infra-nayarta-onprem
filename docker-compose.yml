@@ -51,7 +51,7 @@ include:
 # Watchtower service for automatic container updates
 services:
   dashboard:
-    image: beesarid/nai-controll:latest
+    image: beesar/nai-controll:latest
     profiles: ["dashboard"]
     container_name: dashboard
     restart: unless-stopped
