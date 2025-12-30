@@ -68,6 +68,8 @@ services:
     labels:
       - "com.project.name=nayarta"
       - "com.project.profile=clickhouse"
+      - "com.project.profile=analytics"
+      - "com.project.profile=analytics-tools"
 
   ch-ui:
     profiles: ["clickhouse", "all", "analytics"]
@@ -90,6 +92,8 @@ services:
     labels:
       - "com.project.name=nayarta"
       - "com.project.profile=clickhouse"
+      - "com.project.profile=analytics"
+      - "com.project.profile=analytics-tools"
 
   # ch-proxy:
   #   profiles: ["clickhouse", "all", "analytics"]

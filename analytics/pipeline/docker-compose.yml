@@ -120,6 +120,11 @@ services:
       - pipman-ui
     volumes:
       - ./shared_folder:/shared_folder
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=analytics"
+      - "com.project.profile=pipeline"
+      - "com.project.profile=pipman"
 
   task-service:
     image: beesar/analytics-pipeline:latest
@@ -174,4 +179,9 @@ services:
       - ./shared_folder:/app/shared_folder
     networks:
       - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=analytics"
+      - "com.project.profile=pipeline"
+      - "com.project.profile=task"
 
