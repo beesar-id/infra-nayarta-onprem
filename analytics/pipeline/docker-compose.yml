@@ -4,33 +4,13 @@ networks:
     driver: bridge
 
 services:
-  pipman-ui:
+  pipman-web:
     image: beesar/analytics-pipeline:latest
     profiles: ["analytics", "all", "pipeline"]
-    container_name: nayarta-analytics-pipman-ui
+    container_name: nayarta-analytics-pipman-web
     restart: unless-stopped
     ports:
-      - "8000:8000"
-    command: >
-        sh -c "
-          python manage.py migrate
-          python manage.py runserver 0.0.0.0:8000
-        "
-    networks:
-      - nayarta-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  # Scheduler Application
-  pipman:
-    image: beesar/analytics-pipeline:latest
-    profiles: ["analytics", "all", "pipeline"]
-    container_name: nayarta-analytics-pipman
-    restart: unless-stopped
+      - "4080:8000"
     environment:
       # Debug Mode
       - DEBUG=${DEBUG:-True}
@@ -70,26 +50,81 @@ services:
       - PG_PASS=${DB_PASSWORD_ANALYTICS:-admin122}
 
       # ========= DIRECTORIES =========
-      - RUNTIME_FOLDER=${RUNTIME_FOLDER:-/home/beesar/nayarta-single-deployment/analytics/pipeline}
-      - LOG_FOLDER=${LOG_FOLDER:-./logs}
+      - RUNTIME_FOLDER=${RUNTIME_FOLDER:-/app/shared_folder}
+      - LOG_FOLDER=${LOG_FOLDER:-/app/logs}
+    command: >
+        sh -c "
+          python manage.py migrate
+          python manage.py runserver 0.0.0.0:8000
+        "
+    networks:
+      - nayarta-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Scheduler Application
+  pipman:
+    image: beesar/analytics-pipeline:latest
+    profiles: ["analytics", "all", "pipeline"]
+    container_name: nayarta-analytics-pipman
+    restart: unless-stopped
+    environment:
+      # Debug Mode
+      - DEBUG=${DEBUG:-True}
+
+      # ========= NAYARTA =========
+      - NAYARTA_URL=${API_BASE_URL_ANALYTICS:-http://localhost:8457}
+      - NAYARTA_STREAM_URL=${NAYARTA_STREAM_URL:-rtsp://localhost:8554/}
+      - NAYARTA_API_KEY=${API_KEY_PIPELINE:-VRX986-90-BA-77654NY}
+      - PIPMAN_URL=${PIPMAN_URL:-http://pipman-web:8000}
+
+      # ========= CLICKHOUSE =========
+      - ch_host=${CLICKHOUSE_HOST:-localhost}
+      - ch_uname=${CLICKHOUSE_USER:-default}
+      - ch_password=${CLICKHOUSE_PASSWORD:-beEs4rP@ssW0rD!}
+      - ch_port=${CLICKHOUSE_PORT:-8124}
+      - ch_dbname=${CLICKHOUSE_DB:-default}
+      - ch_secure=${CLICKHOUSE_SECURE:-False}
+
+      # ========= RABBITMQ =========
+      - RMQ_USER=${RABBITMQ_USER:-queueuser}
+      - RMQ_PASS=${RABBITMQ_PASSWORD:-queuePassword}
+      - RMQ_HOST=${HOST_IP:-localhost}
+      - RMQ_PORT=${RABBITMQ_PORT:-5672}
+
+      # ========= MQTT =========
+      - MQTT_BROKER=${MQTT_BROKER:-localhost}
+      - MQTT_PORT=${MQTT_PORT:-1883}
+      - MQTT_TOPIC=${MQTT_TOPIC:-nayai/analytic_update}
+      - MQTT_UNAME=${MQTT_USER:-mqttuser}
+      - MQTT_PASS=${MQTT_PASSWORD:-mqttpassword}
+
+      # ========= POSTGRES =========
+      - PG_HOST=${DB_HOST_ANALYTICS:-localhost}
+      - PG_PORT=${DB_PORT_ANALYTICS:-5432}
+      - PG_DB=${DB_NAME_ANALYTICS:-analytics_db}
+      - PG_USER=${DB_USER_ANALYTICS:-admin}
+      - PG_PASS=${DB_PASSWORD_ANALYTICS:-admin122}
+
+      # ========= DIRECTORIES =========
+      - RUNTIME_FOLDER=${RUNTIME_FOLDER:-/app/shared_folder}
+      - LOG_FOLDER=${LOG_FOLDER:-/app/logs}
     command: python pipman.py
     networks:
       - nayarta-network
     depends_on:
       - pipman-ui
     volumes:
-      - ./pipman/modules/evidence:/evidence
-    #healthcheck:
-    #  test: ["CMD-SHELL", "ps aux | grep '[s]cheduler_pika.py' || exit 1"]
-    #  interval: 30s
-    #  timeout: 10s
-    #  retries: 3
-    #  start_period: 20s
+      - ./shared_folder:/shared_folder
 
   task-service:
     image: beesar/analytics-pipeline:latest
     profiles: ["analytics", "all", "pipeline", "task"]
-    container_name: nayarta-analytics-task-service
+    container_name: nayarta-analytics-task
     restart: unless-stopped
     environment:
       # Debug Mode
@@ -129,16 +164,14 @@ services:
       - PG_PASS=${DB_PASSWORD_ANALYTICS:-admin122}
 
       # ========= DIRECTORIES =========
-      - RUNTIME_FOLDER=${RUNTIME_FOLDER:-./app/evidence}
+      - RUNTIME_FOLDER=${RUNTIME_FOLDER:-./app/shared_folder}
       - LOG_FOLDER=${LOG_FOLDER:-./app/logs}
 
       # ========= YOLO =========
       - YOLO_CONFIG_DIR=/app/.ultralytics
+    command: celery -A task:app worker -l info --autoscale=50,1 -Q io,db,control -n subtasks@%h
     volumes:
-      - ./task:/app:delegated
-      - ./video_data:/app/video_data
-      - ./pipman/modules/evidence:/app/evidence
-      - ./logs/task:/app/logs
+      - ./shared_folder:/app/shared_folder
     networks:
       - nayarta-network
 
