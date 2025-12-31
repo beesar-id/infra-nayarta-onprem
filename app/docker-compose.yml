@@ -230,7 +230,7 @@ services:
 
   frontend:
     profiles: ["app", "appstack", "all", "frontend"]
-    image: beesar/beesar-vms-cloud:251229-192
+    image: beesar/beesar-vms-cloud:onprem-latest
     container_name: nayarta-vms-frontend
     restart: unless-stopped
     labels:
