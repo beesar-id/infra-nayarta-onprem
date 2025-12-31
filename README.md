@@ -115,3 +115,8 @@ sudo nvidia-ctk runtime configure --runtime=docker
 ### 4. Restart Docker
 sudo service docker restart
 ```
+
+### Disable firewall Windows
+```bash
+netsh advfirewall set allprofiles state off
+```
