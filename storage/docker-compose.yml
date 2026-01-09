@@ -8,6 +8,7 @@ networks:
   nayarta-network:
     name: nayarta-network
     driver: bridge
+    external: true
 
 services:
   minio:

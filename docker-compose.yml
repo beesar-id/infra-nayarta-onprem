@@ -61,6 +61,7 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - PROJECT_ROOT=/nayarta-onprem-compose
+      - HOST_PROJECT_ROOT=/Users/betuahanugerah/Development/project/project-beesar/nayarta-onprem-compose
     volumes:
       # Bind mount the entire nayarta-onprem-compose project (parent directory)
       # This allows editing files in the project from within the container

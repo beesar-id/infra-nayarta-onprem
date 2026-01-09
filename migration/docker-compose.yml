@@ -1,35 +1,31 @@
 services:
-  goose-migrate:
-    image: gomicro/goose:latest
-    container_name: nayarta-migration
+  migration-ch:
+    image: beesar/migration-ch:latest
+    container_name: nayarta-migration-ch
     profiles: ["migration", "all"]
     working_dir: /app
     volumes:
       - ./analytics-postgres/migrations:/app/analytics-postgres
       - ./analytics-ch/migrations:/app/analytics-ch
     environment:
-      - DB_USER=${DB_USER_ANALYTICS:-admin}
-      - DB_PASSWORD=${DB_PASSWORD_ANALYTICS:?DB_PASSWORD_ANALYTICS is required}
-      - DB_PORT=${DB_PORT_ANALYTICS:-5432}
-      - DB_NAME=${DB_NAME_ANALYTICS:-analytics_db}
-      - CH_USER=${CLICKHOUSE_USER:-default}
-      - CH_PASSWORD=${CLICKHOUSE_PASSWORD:-dbPassword}
-      - CH_HOST=${CLICKHOUSE_HOST:-nayarta-ch-server}
-      - CH_PORT=${CLICKHOUSE_PORT:-8123}
-      - CH_DATABASE=${CLICKHOUSE_DATABASE:-default}
-      - CH_TCP_PORT=${CLICKHOUSE_TCP_PORT:-9000}
+      - GOOSE_DBSTRING="clickhouse://${CLICKHOUSE_USER:-default}:${CLICKHOUSE_PASSWORD:-dbPassword}@${CLICKHOUSE_HOST:-nayarta-ch-server}:${CLICKHOUSE_PORT:-8123}/${CLICKHOUSE_DATABASE:-default}?secure=false"
     networks:
       - nayarta-network
     labels:
       - "com.project.name=nayarta"
       - "com.project.profile=migration"
-    command: >
-      sh -c "
-      echo 'Running Postgres migrations...' &&
-      goose -dir /app/analytics-postgres postgres \"postgres://$$DB_USER:$$DB_PASSWORD@nayarta-postgres:$$DB_PORT/$$DB_NAME?sslmode=disable\" up &&
-      echo 'Running ClickHouse migrations...' &&
-      goose -dir /app/analytics-ch clickhouse "tcp://$${CH_USER}:$${CH_PASSWORD}@$${CH_HOST}:$${CH_TCP_PORT}/$${CH_DATABASE}" up
-      "
+
+  migration-pg-analytics:
+    image: beesar/migration-pg-analytics:latest
+    container_name: nayarta-migration-pg
+    profiles: ["migration", "all"]
+    environment:
+      - GOOSE_DBSTRING="postgres://${DB_USER_ANALYTICS:-admin}:${DB_PASSWORD_ANALYTICS}@${DB_HOST_ANALYTICS:-nayarta-postgres}:${DB_PORT_ANALYTICS:-5432}/${DB_NAME_ANALYTICS:-analytics_db}?sslmode=disable"
+    networks:
+      - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=migration"
 
   vms-migration:
     profiles: ["migration", "all"]

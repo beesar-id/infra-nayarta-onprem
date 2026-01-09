@@ -11,6 +11,7 @@ networks:
   nayarta-network:
     name: nayarta-network
     driver: bridge
+    external: true
 
 services:
   api:
@@ -238,7 +239,7 @@ services:
       - "com.project.profile=frontend"
       - "com.centurylinklabs.watchtower.enable=true"
     ports:
-      - "8033:3000"
+      - "80:3000"
     # env_file:
     #   - .env
     environment:

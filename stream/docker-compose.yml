@@ -8,7 +8,8 @@ networks:
   nayarta-network:
     name: nayarta-network
     driver: bridge
-
+    external: true
+    
 services:
   mediamtx:
     profiles: ["stream", "stream-cloud", "mediamtx-cloud", "all", "appstack"]
