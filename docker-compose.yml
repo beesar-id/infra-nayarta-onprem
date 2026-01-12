@@ -103,3 +103,8 @@ services:
     # command: --interval 3600 --cleanup --include-restarting --label-enable
     # Note: Watchtower doesn't need to be on the application network
     # It monitors containers via the Docker socket
+
+networks:
+  nayarta-network:
+    name: nayarta-network
+    driver: bridge
