@@ -6,12 +6,6 @@
 # RabbitMQ message broker untuk AI task processing
 # =============================================================================
 
-networks:
-  nayarta-network:
-    name: nayarta-network
-    driver: bridge
-    external: true
-
 services:
   rabbitmq:
     profiles: ["rabbitmq", "all", "analytics", "analytics-tools"]

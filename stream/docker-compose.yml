@@ -4,12 +4,6 @@
 # Usage: docker-compose -f docker-compose.stream.yml up -d
 # =============================================================================
 
-networks:
-  nayarta-network:
-    name: nayarta-network
-    driver: bridge
-    external: true
-    
 services:
   mediamtx:
     profiles: ["stream", "stream-cloud", "mediamtx-cloud", "all", "appstack"]

@@ -6,12 +6,6 @@
 # ClickHouse analytics database dengan UI dan proxy
 # =============================================================================
 
-networks:
-  nayarta-network:
-    name: nayarta-network
-    driver: bridge
-    external: true
-
 volumes:
   ch_data:
 

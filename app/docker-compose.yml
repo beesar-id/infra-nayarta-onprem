@@ -7,12 +7,6 @@
 # Make sure to configure DATABASE_HOST in env files to point to your DB server
 # =============================================================================
 
-networks:
-  nayarta-network:
-    name: nayarta-network
-    driver: bridge
-    external: true
-
 services:
   api:
     profiles: ["app", "appstack", "all", "api"]

@@ -4,12 +4,6 @@
 # Usage: docker-compose -f docker-compose.storage.yml up -d
 # =============================================================================
 
-networks:
-  nayarta-network:
-    name: nayarta-network
-    driver: bridge
-    external: true
-
 services:
   minio:
     profiles: ["storage", "all", "appstack"]

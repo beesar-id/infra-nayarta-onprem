@@ -4,12 +4,6 @@
 # Usage: docker-compose -f docker-compose.database.yml up -d
 # =============================================================================
 
-networks:
-  nayarta-network:
-    name: nayarta-network
-    driver: bridge
-    external: true
-
 services:
   postgres:
     profiles: ["database", "all", "appstack"]
