@@ -27,18 +27,18 @@ services:
       # ========= RABBITMQ =========
       - RMQ_USER=${RABBITMQ_USER:-queueuser}
       - RMQ_PASS=${RABBITMQ_PASSWORD:-queuePassword}
-      - RMQ_HOST=${HOST_IP:-localhost}
+      - RMQ_HOST=${RABBITMQ_HOST:-nayarta-rabbitmq}
       - RMQ_PORT=${RABBITMQ_PORT:-5672}
 
       # ========= MQTT =========
-      - MQTT_BROKER=${MQTT_BROKER:-localhost}
-      - MQTT_PORT=${MQTT_PORT:-1883}
+      - MQTT_BROKER=${MQTT_BROKER:-nayarta-mqtt}
+      - MQTT_PORT=${MQTT_PORT:-9000}
       - MQTT_TOPIC=${MQTT_TOPIC:-nayai/analytic_update}
       - MQTT_UNAME=${MQTT_USER:-mqttuser}
       - MQTT_PASS=${MQTT_PASSWORD:-mqttpassword}
 
       # ========= POSTGRES =========
-      - PG_HOST=${DB_HOST_ANALYTICS:-localhost}
+      - PG_HOST=${DB_HOST_ANALYTICS:-nayarta-postgres}
       - PG_PORT=${DB_PORT_ANALYTICS:-5432}
       - PG_DB=${DB_NAME_ANALYTICS:-analytics_db}
       - PG_USER=${DB_USER_ANALYTICS:-admin}
@@ -86,28 +86,28 @@ services:
       - PIPMAN_URL=${PIPMAN_URL:-http://pipman-web:8000}
 
       # ========= CLICKHOUSE =========
-      - ch_host=${CLICKHOUSE_HOST:-localhost}
+      - ch_host=${CLICKHOUSE_HOST:-nayarta-ch-server}
       - ch_uname=${CLICKHOUSE_USER:-default}
       - ch_password=${CLICKHOUSE_PASSWORD:-beEs4rP@ssW0rD!}
-      - ch_port=${CLICKHOUSE_PORT:-8124}
+      - ch_port=${CLICKHOUSE_PORT:-9000}
       - ch_dbname=${CLICKHOUSE_DB:-default}
       - ch_secure=${CLICKHOUSE_SECURE:-False}
 
       # ========= RABBITMQ =========
       - RMQ_USER=${RABBITMQ_USER:-queueuser}
       - RMQ_PASS=${RABBITMQ_PASSWORD:-queuePassword}
-      - RMQ_HOST=${HOST_IP:-localhost}
+      - RMQ_HOST=${RABBITMQ_HOST:-nayarta-rabbitmq}
       - RMQ_PORT=${RABBITMQ_PORT:-5672}
 
       # ========= MQTT =========
-      - MQTT_BROKER=${MQTT_BROKER:-localhost}
+      - MQTT_BROKER=${MQTT_BROKER:-nayarta-mqtt}
       - MQTT_PORT=${MQTT_PORT:-1883}
       - MQTT_TOPIC=${MQTT_TOPIC:-nayai/analytic_update}
       - MQTT_UNAME=${MQTT_USER:-mqttuser}
       - MQTT_PASS=${MQTT_PASSWORD:-mqttpassword}
 
       # ========= POSTGRES =========
-      - PG_HOST=${DB_HOST_ANALYTICS:-localhost}
+      - PG_HOST=${DB_HOST_ANALYTICS:-nayarta-postgres}
       - PG_PORT=${DB_PORT_ANALYTICS:-5432}
       - PG_DB=${DB_NAME_ANALYTICS:-analytics_db}
       - PG_USER=${DB_USER_ANALYTICS:-admin}
@@ -149,31 +149,31 @@ services:
       - NAYARTA_URL=${API_BASE_URL_ANALYTICS:-http://localhost:8457}
       - NAYARTA_STREAM_URL=${NAYARTA_STREAM_URL:-rtsp://localhost:8554/}
       - NAYARTA_API_KEY=${API_KEY_PIPELINE:-VRX986-90-BA-77654NY}
-      - PIPMAN_URL=${PIPMAN_URL:-http://${HOST_IP:-localhost}:8000}
+      - PIPMAN_URL=${PIPMAN_URL:-http://pipman-web:8000}
 
       # ========= CLICKHOUSE =========
-      - ch_host=${CLICKHOUSE_HOST:-localhost}
+      - ch_host=${CLICKHOUSE_HOST:-nayarta-ch-server}
       - ch_uname=${CLICKHOUSE_USER:-default}
       - ch_password=${CLICKHOUSE_PASSWORD:-beEs4rP@ssW0rD!}
-      - ch_port=${CLICKHOUSE_PORT:-8124}
+      - ch_port=${CLICKHOUSE_PORT:-9000}
       - ch_dbname=${CLICKHOUSE_DB:-default}
       - ch_secure=${CLICKHOUSE_SECURE:-False}
 
       # ========= RABBITMQ =========
       - RMQ_USER=${RABBITMQ_USER:-queueuser}
       - RMQ_PASS=${RABBITMQ_PASSWORD:-queuePassword}
-      - RMQ_HOST=${HOST_IP:-localhost}
+      - RMQ_HOST=${RABBITMQ_HOST:-nayarta-rabbitmq}
       - RMQ_PORT=${RABBITMQ_PORT:-5672}
 
       # ========= MQTT =========
-      - MQTT_BROKER=${MQTT_BROKER:-localhost}
+      - MQTT_BROKER=${MQTT_BROKER:-nayarta-mqtt}
       - MQTT_PORT=${MQTT_PORT:-1883}
       - MQTT_TOPIC=${MQTT_TOPIC:-nayai/analytic_update}
       - MQTT_UNAME=${MQTT_USER:-mqttuser}
       - MQTT_PASS=${MQTT_PASSWORD:-mqttpassword}
 
       # ========= POSTGRES =========
-      - PG_HOST=${DB_HOST_ANALYTICS:-localhost}
+      - PG_HOST=${DB_HOST_ANALYTICS:-nayarta-postgres}
       - PG_PORT=${DB_PORT_ANALYTICS:-5432}
       - PG_DB=${DB_NAME_ANALYTICS:-analytics_db}
       - PG_USER=${DB_USER_ANALYTICS:-admin}
