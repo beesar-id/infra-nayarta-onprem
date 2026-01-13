@@ -1,24 +1,29 @@
 # PostgreSQL Configuration for Nayarta
 
+# Connection settings
 listen_addresses = '*'
 port = 5432
 max_connections = 100
 superuser_reserved_connections = 3
 
+# Memory settings
 shared_buffers = 256MB
 effective_cache_size = 1GB
 work_mem = 4MB
 maintenance_work_mem = 64MB
 
+# Write-ahead logging
 wal_level = replica
 max_wal_size = 1GB
 min_wal_size = 80MB
 checkpoint_completion_target = 0.9
 wal_buffers = 16MB
 
+# Query planner
 random_page_cost = 1.1
 effective_io_concurrency = 200
 
+# Logging
 log_destination = 'stderr'
 logging_collector = on
 log_directory = 'log'
@@ -33,6 +38,18 @@ log_disconnections = on
 log_lock_waits = on
 log_temp_files = 0
 
+# Locale and formatting
+datestyle = 'iso, mdy'
 timezone = 'UTC'
+lc_messages = 'en_US.utf8'
+lc_monetary = 'en_US.utf8'
+lc_numeric = 'en_US.utf8'
+lc_time = 'en_US.utf8'
+default_text_search_config = 'pg_catalog.english'
 
-hba_file = '/etc/postgresql/pg_hba.conf'
+# Other settings
+default_statistics_target = 100
+constraint_exclusion = partition
+cursor_tuple_fraction = 0.1
+from_collapse_limit = 8
+join_collapse_limit = 8
