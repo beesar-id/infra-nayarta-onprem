@@ -47,6 +47,7 @@ services:
       # ========= DIRECTORIES =========
       - RUNTIME_FOLDER=${RUNTIME_FOLDER:-/app/shared_folder}
       - LOG_FOLDER=${LOG_FOLDER:-/app/logs}
+    working_dir: /app/pipman/pipmanweb
     command: >
         sh -c "
           python manage.py migrate
@@ -115,6 +116,7 @@ services:
       # ========= DIRECTORIES =========
       - RUNTIME_FOLDER=${RUNTIME_FOLDER:-/app/shared_folder}
       - LOG_FOLDER=${LOG_FOLDER:-/app/logs}
+    working_dir: /app/pipman
     command: python pipman.py
     networks:
       - nayarta-network
@@ -178,11 +180,12 @@ services:
       - PG_PASS=${DB_PASSWORD_ANALYTICS:-admin122}
 
       # ========= DIRECTORIES =========
-      - RUNTIME_FOLDER=${RUNTIME_FOLDER:-./app/shared_folder}
-      - LOG_FOLDER=${LOG_FOLDER:-./app/logs}
+      - RUNTIME_FOLDER=${RUNTIME_FOLDER:-/app/shared_folder}
+      - LOG_FOLDER=${LOG_FOLDER:-/app/logs}
 
       # ========= YOLO =========
       - YOLO_CONFIG_DIR=/app/.ultralytics
+    working_dir: /app/task
     command: celery -A tasks:app worker -l info --autoscale=50,1 -Q io,db,control -n subtasks@%h
     volumes:
       - ./shared_folder:/app/shared_folder
