@@ -1,20 +1,34 @@
 #!/bin/bash
 set -e
 
-DB_USER="${DB_USER:-admin}"
-DB_HOST="${DB_HOST:-nayarta-postgres}"
+DB_USER="${DB_USER:-${POSTGRES_USER:-admin}}"
 DB_PORT="${DB_PORT:-5432}"
 DB_NAME="${POSTGRES_DB:-postgres}"
-PGPASSWORD="${POSTGRES_PASSWORD:-${DB_PASSWORD}}"
+export PGPASSWORD="${POSTGRES_PASSWORD:-${DB_PASSWORD}}"
+
+# Detect context
+if [ -n "$POSTGRES_DB" ]; then
+  # Initdb context
+  DB_HOST=""            # EMPTY = unix socket
+  WAIT_FOR_DB=false
+  echo "Context: docker-entrypoint-initdb.d (unix socket)"
+else
+  # Restore container context
+  DB_HOST="${DB_HOST:-nayarta-postgres}"
+  WAIT_FOR_DB=true
+  echo "Context: restore container (tcp)"
+fi
 
 echo "=== Starting database restoration ==="
-echo "Connecting to: $DB_USER@$DB_HOST:$DB_PORT/$DB_NAME"
+echo "User: $DB_USER | DB: $DB_NAME | Host: ${DB_HOST:-socket}"
 
-# Wait for PostgreSQL to be ready
-until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" >/dev/null 2>&1; do
+# Wait ONLY in restore container
+if [ "$WAIT_FOR_DB" = true ]; then
+  until pg_isready -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" >/dev/null 2>&1; do
     echo "Waiting for PostgreSQL to be ready..."
     sleep 2
-done
+  done
+fi
 
 # Restore global objects (roles, tablespaces, etc.)
 if [ -f /dumps/globals.sql ]; then
