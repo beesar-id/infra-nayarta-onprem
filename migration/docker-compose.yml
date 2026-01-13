@@ -3,12 +3,15 @@ services:
     image: beesar/migration-ch:latest
     container_name: nayarta-migration-ch
     profiles: ["migration", "all"]
-    working_dir: /app
+    restart: "no"
     volumes:
       - ./analytics-postgres/migrations:/app/analytics-postgres
       - ./analytics-ch/migrations:/app/analytics-ch
+    # env_file:
+    #   - ../.env
     environment:
-      - GOOSE_DBSTRING="clickhouse://${CLICKHOUSE_USER:-default}:${CLICKHOUSE_PASSWORD:-dbPassword}@${CLICKHOUSE_HOST:-nayarta-ch-server}:${CLICKHOUSE_PORT:-8123}/${CLICKHOUSE_DATABASE:-default}?secure=false"
+      - GOOSE_DRIVER=clickhouse
+      - GOOSE_DBSTRING=${CLICKHOUSE_DBSTRING:-clickhouse://default:beEs4rP%40ssW0rD%21@nayarta-ch-server:9000/default?secure=false}
     networks:
       - nayarta-network
     labels:
@@ -17,10 +20,14 @@ services:
 
   migration-pg-analytics:
     image: beesar/migration-pg-analytics:latest
-    container_name: nayarta-migration-pg
+    container_name: nayarta-migration-pg-analytics
     profiles: ["migration", "all"]
+    restart: "no"
+    # env_file:
+    #   - ../.env
     environment:
-      - GOOSE_DBSTRING="postgres://${DB_USER_ANALYTICS:-admin}:${DB_PASSWORD_ANALYTICS}@${DB_HOST_ANALYTICS:-nayarta-postgres}:${DB_PORT_ANALYTICS:-5432}/${DB_NAME_ANALYTICS:-analytics_db}?sslmode=disable"
+      - GOOSE_DRIVER=postgres
+      - GOOSE_DBSTRING=postgres://${DB_USER_ANALYTICS:-admin}:${DB_PASSWORD_ANALYTICS}@${DB_HOST_ANALYTICS:-nayarta-postgres}:${DB_PORT_ANALYTICS:-5432}/${DB_NAME_ANALYTICS:-analytics_db}?sslmode=disable
     networks:
       - nayarta-network
     labels:
@@ -31,7 +38,9 @@ services:
     profiles: ["migration", "all"]
     image: beesar/beesar-vms-be:migration-latest
     container_name: nayarta-migration-vms
-    restart: unless-stopped
+    restart: "no"
+    env_file:
+      - ../.env
     environment:
       # Database Connection (from database service)
       - DB_NAME=${DB_NAME:-vms_development}
