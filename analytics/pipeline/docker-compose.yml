@@ -2,7 +2,7 @@ services:
   pipman-web:
     image: beesar/analytics-pipeline:latest
     profiles: ["analytics", "all", "pipeline", "pipman"]
-    container_name: nayarta-analytics-pipman-web
+    container_name: nayarta-nai-pipman-web
     restart: unless-stopped
     ports:
       - "4080:8000"
@@ -62,18 +62,12 @@ services:
               capabilities: [gpu]
     networks:
       - nayarta-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
 
   # Scheduler Application
   pipman:
     image: beesar/analytics-pipeline:latest
     profiles: ["analytics", "all", "pipeline", "pipman"]
-    container_name: nayarta-analytics-pipman
+    container_name: nayarta-nai-pipman
     restart: unless-stopped
     environment:
       # Debug Mode
@@ -140,7 +134,7 @@ services:
   task-service:
     image: beesar/analytics-pipeline:latest
     profiles: ["analytics", "all", "pipeline", "task"]
-    container_name: nayarta-analytics-task
+    container_name: nayarta-nai-task
     restart: unless-stopped
     environment:
       # Debug Mode
