@@ -18,7 +18,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
     volumes:
-      - ./data:/var/lib/postgresql/data:rw
+      - postgres_data:/var/lib/postgresql/data:rw
       - ./config/postgresql.conf:/etc/postgresql/postgresql.conf:ro
       - ./config/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
       - ./backup:/dumps:ro
@@ -93,8 +93,6 @@ services:
     command: ["bash", "/restore.sh"]
     restart: "no"
 
-# volumes:
-#   postgres_data:
-#     name: nayarta_postgres_data
-#   postgres_logs:
-#     name: nayarta_postgres_logs
+volumes:
+  postgres_data:
+    name: nayarta_postgres_data
