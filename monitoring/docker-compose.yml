@@ -21,7 +21,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ${HOST_PROJECT_ROOT:-.}/monitoring/config/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     restart: always
     networks:
@@ -40,9 +40,9 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./config/grafana/datasources:/etc/grafana/provisioning/datasources
-      - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./config/grafana/dashboard_json:/var/lib/grafana/dashboards
+      - ${HOST_PROJECT_ROOT:-.}/monitoring/config/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ${HOST_PROJECT_ROOT:-.}/monitoring/config/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ${HOST_PROJECT_ROOT:-.}/monitoring/config/grafana/dashboard_json:/var/lib/grafana/dashboards
     depends_on:
       - prometheus
 

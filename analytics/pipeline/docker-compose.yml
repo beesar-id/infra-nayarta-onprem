@@ -117,7 +117,7 @@ services:
     depends_on:
       - pipman-web
     volumes:
-      - ./shared_folder:/shared_folder
+      - ${HOST_PROJECT_ROOT:-.}/analytics/pipeline/shared_folder:/shared_folder
     deploy:
       resources:
         reservations:
@@ -182,7 +182,7 @@ services:
     working_dir: /app/task
     command: celery -A tasks:app worker -l info --autoscale=50,1 -Q io,db,control -n subtasks@%h
     volumes:
-      - ./shared_folder:/app/shared_folder
+      - ${HOST_PROJECT_ROOT:-.}/analytics/pipeline/shared_folder:/app/shared_folder
     networks:
       - nayarta-network
     deploy:

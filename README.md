@@ -11,7 +11,7 @@ Copy the template and update your configuration:
 cp .env.template .env
 ```
 
-> **Note:**  
+> **Note:**
 > You need to update the `HOST_IP` value every time your IP changes.
 
 For run the services
@@ -41,6 +41,73 @@ additional command for debuging
 docker logs <container_name> -f       # For stream container logs use -f flag
 ```
 
+### Cross-Platform Compatibility (Mac ↔ Linux/Windows WSL)
+
+Project ini dikonfigurasi untuk bekerja dengan baik di Mac, Linux, dan Windows WSL. Semua file konfigurasi menggunakan **LF (Unix) line endings** untuk memastikan kompatibilitas.
+
+#### Setup Otomatis (Recommended)
+
+Project sudah dikonfigurasi dengan:
+- **`.gitattributes`** - Memastikan Git selalu menggunakan LF line endings
+- **`.editorconfig`** - Memastikan editor menggunakan format yang benar
+
+Editor modern (VS Code, Cursor, dll) akan otomatis menggunakan `.editorconfig`.
+
+#### Normalize Line Endings (Jika Diperlukan)
+
+Jika Anda mengalami masalah dengan line endings (misalnya error "input in flex scanner failed" di PostgreSQL), jalankan script normalisasi:
+
+```bash
+# Normalize semua file config
+./scripts/normalize-line-endings.sh
+```
+
+Atau manual dengan dos2unix (di Linux/WSL):
+```bash
+# Install dos2unix jika belum ada
+sudo apt-get update && sudo apt-get install -y dos2unix
+
+# Normalize file config database
+cd database/config
+dos2unix postgresql.conf pg_hba.conf
+```
+
+#### Setup Git untuk Normalize Existing Files
+
+Setelah setup `.gitattributes`, normalize semua file yang sudah ada:
+
+```bash
+# Re-normalize semua file di repository
+git add --renormalize .
+git commit -m "Normalize line endings to LF"
+```
+
+#### Troubleshooting Line Ending Issues
+
+**Error di PostgreSQL:**
+```
+input in flex scanner failed at file "/etc/postgresql/postgresql.conf" line 1
+FATAL: configuration file "/etc/postgresql/postgresql.conf" contains errors
+```
+
+**Solusi:**
+1. Pastikan file menggunakan LF line endings:
+   ```bash
+   file database/config/postgresql.conf
+   # Should show: "ASCII text" (not "with CRLF line terminators")
+   ```
+
+2. Normalize file:
+   ```bash
+   ./scripts/normalize-line-endings.sh
+   ```
+
+3. Restart container:
+   ```bash
+   docker compose --profile database down
+   docker compose --profile database up -d
+   ```
+
 ### Aditional profile command for any services
 ```bash
 docker compose --profile analytics        # For all analytics
@@ -55,9 +122,9 @@ docker compose --profile scheduler        # For scheduler api and scheduler scri
 ```bash
 git submodule update --init --remote --recursive
 git submodule update --init --recursive
-git submodule update --remote 
+git submodule update --remote
 git submodule sync --recursive
-git submodule status 
+git submodule status
 ```
 
 add submodule :
@@ -65,7 +132,7 @@ add submodule :
 git submodule add <repo-url> <path/destination>
 ```
 
-### Additional command 
+### Additional command
 #### Build multi platform support for image
 
 ```bash

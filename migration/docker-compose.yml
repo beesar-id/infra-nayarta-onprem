@@ -5,8 +5,8 @@ services:
     profiles: ["migration", "all"]
     restart: "no"
     volumes:
-      - ./analytics-postgres/migrations:/app/analytics-postgres
-      - ./analytics-ch/migrations:/app/analytics-ch
+      - ${HOST_PROJECT_ROOT:-.}/migration/analytics-postgres/migrations:/app/analytics-postgres
+      - ${HOST_PROJECT_ROOT:-.}/migration/analytics-ch/migrations:/app/analytics-ch
     # env_file:
     #   - ../.env
     environment:

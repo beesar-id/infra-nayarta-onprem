@@ -22,7 +22,7 @@ services:
       MINIO_PROMETHEUS_AUTH_TYPE: "public"
       MINIO_SERVER_URL: "http://localhost:9100"
     volumes:
-      - ./data:/data:rw
+      - ${HOST_PROJECT_ROOT:-.}/storage/data:/data:rw
     command: server /data --console-address ":9001"
     networks:
       - nayarta-network

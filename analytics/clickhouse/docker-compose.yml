@@ -21,8 +21,8 @@ services:
     volumes:
       - ch_data:/var/lib/clickhouse:rw
       - ch_logs:/var/log/clickhouse-server:rw
-      - ./config/kafka.xml:/etc/clickhouse-server/config.d/kafka.xml
-      - ./config/clickhouse-logging.xml:/etc/clickhouse-server/config.d/clickhouse-logging.xml
+      - ${HOST_PROJECT_ROOT:-.}/analytics/clickhouse/config/kafka.xml:/etc/clickhouse-server/config.d/kafka.xml
+      - ${HOST_PROJECT_ROOT:-.}/analytics/clickhouse/config/clickhouse-logging.xml:/etc/clickhouse-server/config.d/clickhouse-logging.xml
     environment:
       # Authentication
       CLICKHOUSE_USER: ${CLICKHOUSE_USER:-default}

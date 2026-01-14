@@ -107,4 +107,5 @@ services:
 networks:
   nayarta-network:
     name: nayarta-network
-    driver: bridge
+    external: true
+    # Note: Network will be created automatically by nayarta-sd-controll service if it doesn't exist
