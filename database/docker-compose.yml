@@ -59,7 +59,7 @@ services:
       DB_BACKUP_NAME: ${DB_BACKUP_NAME:-vms_development,analytics_db,schedulerdb}
     volumes:
       - ./backup/dumps:/dumps
-      - ./scripts/backup.sh:/backup.sh:ro
+      - ./scripts:/scripts:ro
     networks:
       - nayarta-network
     labels:
@@ -67,7 +67,7 @@ services:
       - "com.project.profile=database"
     # depends_on:
     #   - postgres
-    command: ["bash", "/backup.sh"]
+    command: ["bash", "/scripts/backup.sh"]
     restart: "no"
 
   postgres-restore:
@@ -82,7 +82,7 @@ services:
       DB_BACKUP_NAME: ${DB_BACKUP_NAME:-vms_development,analytics_db,schedulerdb}
     volumes:
       - ./backup:/dumps:ro
-      - ./scripts/restore.sh:/restore.sh:ro
+      - ./scripts:/scripts:ro
     networks:
       - nayarta-network
     labels:
@@ -90,7 +90,7 @@ services:
       - "com.project.profile=database"
     # depends_on:
     #   - postgres
-    command: ["bash", "/restore.sh"]
+    command: ["bash", "/scripts/restore.sh"]
     restart: "no"
 
 volumes:
