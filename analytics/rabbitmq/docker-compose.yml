@@ -22,8 +22,8 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-queuePassword}
       RABBITMQ_DEFAULT_VHOST: ${RABBITMQ_VHOST:-nayarta}
     volumes:
-      - ./data:/var/lib/rabbitmq:rw
-      - ./logs:/var/log/rabbitmq:rw
+      - rabbitmq_data:/var/lib/rabbitmq:rw
+      - rabbitmq_logs:/var/log/rabbitmq:rw
     networks:
       - nayarta-network
     healthcheck:
@@ -38,8 +38,8 @@ services:
       - "com.project.profile=analytics-tools"
       - "com.project.profile=rabbitmq"
 
-# volumes:
-#   rabbitmq_data:
-#     name: nayarta_rabbitmq_data
-#   rabbitmq_logs:
-#     name: nayarta_rabbitmq_logs
+volumes:
+  rabbitmq_data:
+    name: nayarta_rabbitmq_data
+  rabbitmq_logs:
+    name: nayarta_rabbitmq_logs

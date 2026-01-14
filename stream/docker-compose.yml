@@ -159,8 +159,8 @@ services:
       # Logging
       - EMQX_LOG__CONSOLE__LEVEL=info
     volumes:
-      - ./data/emqx/data:/opt/emqx/data:rw
-      - ./data/emqx/log:/opt/emqx/log:rw
+      - emqx_data:/opt/emqx/data:rw
+      - emqx_logs:/opt/emqx/log:rw
     networks:
       - nayarta-network
     healthcheck:

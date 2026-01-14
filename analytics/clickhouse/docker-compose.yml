@@ -6,9 +6,6 @@
 # ClickHouse analytics database dengan UI dan proxy
 # =============================================================================
 
-volumes:
-  ch_data:
-
 services:
   ch-server:
     profiles: ["clickhouse", "ch-server", "all", "analytics", "analytics-tools"]
@@ -23,7 +20,7 @@ services:
       - "9009:9009"  # Interserver communication
     volumes:
       - ch_data:/var/lib/clickhouse:rw
-      - ./logs:/var/log/clickhouse-server:rw
+      - ch_logs:/var/log/clickhouse-server:rw
       - ./config/kafka.xml:/etc/clickhouse-server/config.d/kafka.xml
       - ./config/clickhouse-logging.xml:/etc/clickhouse-server/config.d/clickhouse-logging.xml
     environment:
@@ -105,9 +102,9 @@ services:
   #   depends_on:
   #     - ch-ui
 
-# volumes:
-#   ch_data:
-#     name: nayarta_clickhouse_data
-#   ch_logs:
-#     name: nayarta_clickhouse_logs
+volumes:
+  ch_data:
+    name: nayarta_clickhouse_data
+  ch_logs:
+    name: nayarta_clickhouse_logs
 
