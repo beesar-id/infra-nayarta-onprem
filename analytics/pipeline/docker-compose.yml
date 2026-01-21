@@ -73,6 +73,9 @@ services:
       # Debug Mode
       - DEBUG=${DEBUG:-True}
 
+      # ========= PYTHON PATH =========
+      - PYTHON_PATH=/usr/bin/python
+
       # ========= NAYARTA =========
       - NAYARTA_URL=${API_BASE_URL_ANALYTICS:-http://localhost:8457}
       - NAYARTA_STREAM_URL=${NAYARTA_STREAM_URL:-rtsp://localhost:8554/}

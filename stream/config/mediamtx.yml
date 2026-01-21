@@ -73,7 +73,7 @@ webrtcLocalTCPAddress: :8189
 #   - url: stun:stun.l.google.com:19302
 webrtcIPsFromInterfaces: no
 webrtcIPsFromInterfacesList: ["eth0", "lo"]
-webrtcAdditionalHosts: ["localhost", "127.0.0.1", "host.docker.internal"]
+webrtcAdditionalHosts: ["localhost"]
 webrtcICEServers2: []
 webrtcHandshakeTimeout: 20s
 webrtcTrackGatherTimeout: 5s
