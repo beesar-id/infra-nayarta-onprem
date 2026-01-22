@@ -11,8 +11,8 @@ services:
       - DEBUG=${DEBUG:-True}
 
       # ========= NAYARTA =========
-      - NAYARTA_URL=${API_BASE_URL_ANALYTICS:-http://localhost:8457}
-      - NAYARTA_STREAM_URL=${NAYARTA_STREAM_URL:-rtsp://localhost:8554/}
+      - NAYARTA_URL=${API_BASE_URL_ANALYTICS:-http://nayarta-vms-api:8457}
+      - NAYARTA_STREAM_URL=${NAYARTA_STREAM_URL:-rtsp://nayarta-stream:8554/}
       - NAYARTA_API_KEY=${API_KEY_PIPELINE:-VRX986-90-BA-77654NY}
       - PIPMAN_URL=${PIPMAN_URL:-http://${HOST_IP:-localhost}:8000}
 
@@ -77,8 +77,8 @@ services:
       - PYTHON_PATH=/usr/bin/python
 
       # ========= NAYARTA =========
-      - NAYARTA_URL=${API_BASE_URL_ANALYTICS:-http://localhost:8457}
-      - NAYARTA_STREAM_URL=${NAYARTA_STREAM_URL:-rtsp://localhost:8554/}
+      - NAYARTA_URL=${API_BASE_URL_ANALYTICS:-http://nayarta-vms-api:8457}
+      - NAYARTA_STREAM_URL=${NAYARTA_STREAM_URL:-rtsp://nayarta-stream:8554/}
       - NAYARTA_API_KEY=${API_KEY_PIPELINE:-VRX986-90-BA-77654NY}
       - PIPMAN_URL=${PIPMAN_URL:-http://pipman-web:8000}
 
@@ -143,8 +143,8 @@ services:
       # Debug Mode
       - DEBUG=${DEBUG:-False}
       # ========= NAYARTA =========
-      - NAYARTA_URL=${API_BASE_URL_ANALYTICS:-http://localhost:8457}
-      - NAYARTA_STREAM_URL=${NAYARTA_STREAM_URL:-rtsp://localhost:8554/}
+      - NAYARTA_URL=${API_BASE_URL_ANALYTICS:-http://nayarta-vms-api:8457}
+      - NAYARTA_STREAM_URL=${NAYARTA_STREAM_URL:-rtsp://nayarta-stream:8554/}
       - NAYARTA_API_KEY=${API_KEY_PIPELINE:-VRX986-90-BA-77654NY}
       - PIPMAN_URL=${PIPMAN_URL:-http://pipman-web:8000}
 
