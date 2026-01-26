@@ -48,9 +48,9 @@ services:
     labels:
       - "com.project.name=nayarta"
       - "com.project.profile=stream-nvr"
-  
+
   mediamtx-cam:
-    profiles: ["stream-camera",]
+    profiles: ["stream-test",]
     image: bluenviron/mediamtx:latest-ffmpeg
     container_name: nayarta-camera
     # ports:
@@ -64,7 +64,7 @@ services:
 
   stream-test-cam1:
     image: linuxserver/ffmpeg
-    profiles: ["stream-camera", "cam1"]
+    profiles: ["stream-test", "cam1"]
     container_name: stream-test-cam1
     command: -re -stream_loop -1 -fflags +genpts -i /videos/sample1.mp4 -vf scale=640:480 -c:v libx264 -preset ultrafast -tune zerolatency -b:v 1000k -maxrate 1000k -bufsize 2000k -c:a aac -ar 44100 -use_wallclock_as_timestamps 1 -rtsp_transport tcp -f rtsp rtsp://mediamtx-cam:8554/f6075d78-1e29-4dcb-ad28-e08117f920e4
     volumes:
@@ -78,7 +78,7 @@ services:
 
   stream-test-cam2:
     image: linuxserver/ffmpeg
-    profiles: ["stream-camera", "cam2"]
+    profiles: ["stream-test", "cam2"]
     container_name: stream-test-cam2
     command: -re -stream_loop -1 -fflags +genpts -i /videos/sample2.mp4 -vf scale=640:480 -c:v libx264 -preset ultrafast -tune zerolatency -b:v 1000k -maxrate 1000k -bufsize 2000k -c:a aac -ar 44100 -use_wallclock_as_timestamps 1 -rtsp_transport tcp -f rtsp rtsp://mediamtx-cam:8554/cam2
     volumes:
@@ -92,7 +92,7 @@ services:
 
   stream-test-cam3:
     image: linuxserver/ffmpeg
-    profiles: ["stream-camera", "cam3"]
+    profiles: ["stream-test", "cam3"]
     container_name: stream-test-cam3
     command: -re -stream_loop -1 -fflags +genpts -i /videos/sample1.mp4 -vf scale=640:480 -c:v libx264 -preset ultrafast -tune zerolatency -b:v 1000k -maxrate 1000k -bufsize 2000k -c:a aac -ar 44100 -use_wallclock_as_timestamps 1 -rtsp_transport tcp -f rtsp rtsp://mediamtx-cam:8554/cam3
     volumes:
@@ -106,7 +106,7 @@ services:
 
   stream-test-cam4:
     image: linuxserver/ffmpeg
-    profiles: ["stream-camera", "cam4"]
+    profiles: ["stream-test", "cam4"]
     container_name: stream-test-cam4
     command: -re -stream_loop -1 -fflags +genpts -i /videos/sample2.mp4 -vf scale=640:480 -c:v libx264 -preset ultrafast -tune zerolatency -b:v 1000k -maxrate 1000k -bufsize 2000k -c:a aac -ar 44100 -use_wallclock_as_timestamps 1 -rtsp_transport tcp -f rtsp rtsp://mediamtx-cam:8554/cam4
     volumes:
@@ -133,29 +133,29 @@ services:
       # Dashboard Admin User
       - EMQX_DASHBOARD__DEFAULT_USERNAME=${EMQX_DASHBOARD_USER:-root}
       - EMQX_DASHBOARD__DEFAULT_PASSWORD=${EMQX_DASHBOARD_PASS:-nayarta_root_password}
-      
+
       # Authentication Configuration
       # - EMQX_AUTHENTICATION__1__BACKEND=built_in_database
       # - EMQX_AUTHENTICATION__1__MECHANISM=password_based
       # - EMQX_AUTHENTICATION__1__PASSWORD_HASH_ALGORITHM__NAME=sha256
       # - EMQX_AUTHENTICATION__1__PASSWORD_HASH_ALGORITHM__SALT_POSITION=suffix
       # - EMQX_AUTHENTICATION__1__ENABLE=true
-      
+
       # Listener Configuration - DISABLE anonymous
       # - EMQX_LISTENERS__TCP__DEFAULT__ENABLE_AUTHN=true
       # - EMQX_LISTENERS__TCP__DEFAULT__MAX_CONNECTIONS=1024000
       # - EMQX_LISTENERS__WS__DEFAULT__ENABLE_AUTHN=true
       # - EMQX_LISTENERS__SSL__DEFAULT__ENABLE_AUTHN=true
       # - EMQX_LISTENERS__WSS__DEFAULT__ENABLE_AUTHN=true
-      
+
       # Security - Force authentication
       - EMQX_ALLOW_ANONYMOUS=false
-      
+
       # Node configuration
       - EMQX_NODE_NAME=emqx@nayarta-mqtt
       - EMQX_CLUSTER__DISCOVERY_STRATEGY=static
       - EMQX_CLUSTER__STATIC__SEEDS=[emqx@nayarta-mqtt]
-      
+
       # Logging
       - EMQX_LOG__CONSOLE__LEVEL=info
     volumes:
@@ -177,7 +177,7 @@ services:
   #   profiles: ["stream", "mqtt", "all", "appstack"]
   #   image: curlimages/curl:latest
   #   container_name: nayarta-mqtt-init
-  #   depends_on: 
+  #   depends_on:
   #     emqx:
   #       condition: service_healthy
   #   env_file:
@@ -194,7 +194,7 @@ services:
   #     - |
   #       echo "⏳ Waiting for EMQX API to be ready..."
   #       sleep 15
-        
+
   #       echo "Creating MQTT user: $${MQTT_USER}"
   #       curl -s -u "$${EMQX_DASHBOARD_USER}:$${EMQX_DASHBOARD_PASS}" \
   #         -X POST "http://nayarta-mqtt:18083/api/v5/authentication/password_based:built_in_database/users" \
