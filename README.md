@@ -6,9 +6,30 @@ Super clean dan modular Docker Compose setup dengan **include-based architecture
 
 ### Quick Start
 
-Copy the template and update your configuration:
+#### 1. Setup Environment Variables
+
+**Option A: Automatic Setup (Recommended)**
 ```bash
-cp .env.template .env
+# Run the setup script to automatically detect and set HOST_PROJECT_ROOT
+./scripts/setup-env.sh
+```
+
+**Option B: Manual Setup**
+```bash
+# Create .env file from example (if .env.example exists)
+cp .env.example .env
+
+# Or create manually and set HOST_PROJECT_ROOT
+echo "HOST_PROJECT_ROOT=$(pwd)" >> .env
+```
+
+**Important:** `HOST_PROJECT_ROOT` must be set to the absolute path of the project directory. This is required for volume mounts to work correctly.
+
+**To get your current path:**
+```bash
+pwd
+# Example output: /home/username/nayarta-onprem-compose
+# Use this value for HOST_PROJECT_ROOT
 ```
 
 > **Note:**
@@ -39,6 +60,57 @@ docker compose --profile all down
 additional command for debuging
 ```bash
 docker logs <container_name> -f       # For stream container logs use -f flag
+```
+
+### Troubleshooting
+
+#### Error: "not a directory" or "mount failed"
+
+**Problem:** Volume mount paths are incorrect, usually because `HOST_PROJECT_ROOT` is not set.
+
+**Solution:**
+1. Make sure `.env` file exists and contains `HOST_PROJECT_ROOT`:
+   ```bash
+   # Check if HOST_PROJECT_ROOT is set
+   grep HOST_PROJECT_ROOT .env
+
+   # If not set, add it:
+   echo "HOST_PROJECT_ROOT=$(pwd)" >> .env
+   ```
+
+2. Or run the setup script:
+   ```bash
+   ./scripts/setup-env.sh
+   ```
+
+3. Verify the path is correct:
+   ```bash
+   # Should show the absolute path to your project
+   cat .env | grep HOST_PROJECT_ROOT
+   ```
+
+4. Restart docker compose:
+   ```bash
+   docker compose down
+   docker compose --profile appstack up -d
+   ```
+
+#### Error: "volume already exists but was created for project"
+
+**Problem:** Volume was created by a different docker compose project.
+
+**Solution:**
+```bash
+# Option 1: Use external volume (if you want to share volumes)
+# Add to docker-compose.yml volumes section:
+volumes:
+  nayarta_postgres_data:
+    external: true
+    name: nayarta_postgres_data
+
+# Option 2: Remove and recreate (WARNING: data loss)
+docker volume rm nayarta_postgres_data
+docker compose --profile appstack up -d
 ```
 
 ### Aditional profile command for any services
