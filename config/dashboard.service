@@ -6,12 +6,12 @@ After=network.target
 User=root
 Group=root
 
-WorkingDirectory=/home/beesar/dashboard
+WorkingDirectory=/opt/dashboard
 
 # Load environment variables from .env
-EnvironmentFile=/home/beesar/dashboard/.env
+EnvironmentFile=/opt/dashboard/.env
 
-ExecStart=/home/beesar/dashboard/dashboard-server
+ExecStart=/opt/dashboard/dashboard-server
 
 Restart=always
 RestartSec=5
