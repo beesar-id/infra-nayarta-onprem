@@ -54,6 +54,7 @@ services:
       MINIO_BUCKETS: ${OBJECT_STORAGE_DEFAULT_BUCKET:-nayarta-storage}
     networks:
       - nayarta-network
+    restart: "no"
     labels:
       - "com.project.name=nayarta"
       - "com.project.profile=storage"
