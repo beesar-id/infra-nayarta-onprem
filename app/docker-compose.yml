@@ -220,6 +220,7 @@ services:
       - NEXTAUTH_URL=${ADMIN_NEXTAUTH_URL:-http://localhost:8456}
       - NEXTAUTH_SECRET=${ADMIN_NEXTAUTH_SECRET:-change-me}
       - DATABASE_URL=${ADMIN_DATABASE_URL}
+      - AUTH_TRUST_HOST=${AUTH_TRUST_HOST:-true}
     networks:
       - nayarta-network
 
