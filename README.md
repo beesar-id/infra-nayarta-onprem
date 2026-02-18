@@ -62,57 +62,6 @@ additional command for debuging
 docker logs <container_name> -f       # For stream container logs use -f flag
 ```
 
-### Troubleshooting
-
-#### Error: "not a directory" or "mount failed"
-
-**Problem:** Volume mount paths are incorrect, usually because `HOST_PROJECT_ROOT` is not set.
-
-**Solution:**
-1. Make sure `.env` file exists and contains `HOST_PROJECT_ROOT`:
-   ```bash
-   # Check if HOST_PROJECT_ROOT is set
-   grep HOST_PROJECT_ROOT .env
-
-   # If not set, add it:
-   echo "HOST_PROJECT_ROOT=$(pwd)" >> .env
-   ```
-
-2. Or run the setup script:
-   ```bash
-   ./scripts/setup-env.sh
-   ```
-
-3. Verify the path is correct:
-   ```bash
-   # Should show the absolute path to your project
-   cat .env | grep HOST_PROJECT_ROOT
-   ```
-
-4. Restart docker compose:
-   ```bash
-   docker compose down
-   docker compose --profile appstack up -d
-   ```
-
-#### Error: "volume already exists but was created for project"
-
-**Problem:** Volume was created by a different docker compose project.
-
-**Solution:**
-```bash
-# Option 1: Use external volume (if you want to share volumes)
-# Add to docker-compose.yml volumes section:
-volumes:
-  nayarta_postgres_data:
-    external: true
-    name: nayarta_postgres_data
-
-# Option 2: Remove and recreate (WARNING: data loss)
-docker volume rm nayarta_postgres_data
-docker compose --profile appstack up -d
-```
-
 ### Aditional profile command for any services
 ```bash
 docker compose --profile analytics        # For all analytics
@@ -169,29 +118,51 @@ pg_restore -U admin -d analytics_db /docker-entrypoint-initdb.d/analytics_db.dum
 pg_restore -U admin -d schedulerdb /docker-entrypoint-initdb.d/schedulerdb.dump
 ```
 
-#### NVIDIA Container toolkit
-##### 1. Add NVIDIA package repositories
-(NVIDIA Docs)[https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html]
-```bash
-distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-curl -s -L https://nvidia.github.io/libnvidia-container/gpgkey | sudo apt-key add -
-curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
-  sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+## NVIDIA Container toolkit
 
-### 2. Install toolkit
-sudo apt-get update
-sudo apt-get install -y nvidia-container-toolkit
+Script otomatis (cek Docker & Docker Compose, lalu install NVIDIA Container Toolkit):
 
-### 3. Configure Docker
-sudo nvidia-ctk runtime configure --runtime=docker
-
-### 4. Restart Docker
-sudo service docker restart
+```sh
+sudo ./scripts/install-nvidia-container-toolkit.sh
 ```
 
-### Disable firewall Windows
-```bash
-netsh advfirewall set allprofiles state off
+Atau langkah manual berikut.
+
+### 1. Install the prerequisites for the instructions below:
+```sh
+sudo apt-get update && sudo apt-get install -y --no-install-recommends \
+   ca-certificates \
+   curl \
+   gnupg2
+```
+
+### 2. Configure the production repository:
+```sh
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg \
+  && curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+    sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+    sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+```
+
+### 3.Update the packages list from the repository:
+```sh
+sudo apt-get update
+```
+
+### 4. Install the NVIDIA Container Toolkit packages:
+```sh
+export NVIDIA_CONTAINER_TOOLKIT_VERSION=1.18.2-1
+  sudo apt-get install -y \
+      nvidia-container-toolkit=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+      nvidia-container-toolkit-base=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+      libnvidia-container-tools=${NVIDIA_CONTAINER_TOOLKIT_VERSION} \
+      libnvidia-container1=${NVIDIA_CONTAINER_TOOLKIT_VERSION}
+```
+
+### 5. Configure the container runtime by using the nvidia-ctk command:
+```sh
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
 ```
 
 ### Convert config file to unix

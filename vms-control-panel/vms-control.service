@@ -1,0 +1,26 @@
+[Unit]
+Description=Dashboard Controll Server for nayarta service
+After=network.target
+
+[Service]
+User=root
+Group=root
+
+WorkingDirectory=/opt/vms-control
+
+# Load environment variables from .env
+# EnvironmentFile=/opt/vms-control/.env
+Environment="PROJECT_ROOT=/home/beesar/infra-nayarta-onprem"
+Environment="PORT=3030"
+
+ExecStart=/opt/vms-control/vms-control-server
+
+Restart=always
+RestartSec=5
+LimitNOFILE=65535
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

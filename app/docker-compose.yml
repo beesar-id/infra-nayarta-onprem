@@ -10,7 +10,7 @@
 services:
   api:
     profiles: ["app", "appstack", "all", "api"]
-    image: ghcr.io/beesar-id/nayarta-vms-api:latest${IMAGE_SUFFIX}
+    image: ghcr.io/beesar-id/nayarta-vms-api:latest-${IMAGE_SUFFIX}
     container_name: nayarta-vms-api
     restart: unless-stopped
     labels:
@@ -106,7 +106,7 @@ services:
 
   sse:
     profiles: ["app", "appstack", "all", "sse"]
-    image: ghcr.io/beesar-id/nayarta-vms-sse:latest${IMAGE_SUFFIX}
+    image: ghcr.io/beesar-id/nayarta-vms-sse:latest-${IMAGE_SUFFIX}
     container_name: nayarta-vms-sse
     restart: unless-stopped
     labels:
@@ -205,7 +205,7 @@ services:
 
   admin:
     profiles: ["app","appstack", "all","admin"]
-    image: ghcr.io/beesar-id/nayarta-vms-admin:latest${IMAGE_SUFFIX}
+    image: ghcr.io/beesar-id/nayarta-vms-admin:latest-${IMAGE_SUFFIX}
     container_name: nayarta-vms-admin
     restart: unless-stopped
     labels:
@@ -226,7 +226,7 @@ services:
 
   frontend:
     profiles: ["app", "appstack", "all", "frontend"]
-    image: ghcr.io/beesar-id/nayarta-vms-cloud:latest${IMAGE_SUFFIX}
+    image: ghcr.io/beesar-id/nayarta-vms-cloud:latest-${IMAGE_SUFFIX}
     platform: linux/amd64
     container_name: nayarta-vms-frontend
     restart: unless-stopped
