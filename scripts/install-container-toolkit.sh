@@ -140,4 +140,4 @@ systemctl restart docker
 
 log_ok "NVIDIA Container Toolkit installed and configured."
 echo ""
-echo -e "${GREEN}Done. Verify with: docker run --rm --gpus all nvidia/cuda:12.0-base nvidia-smi${NC}"
+echo -e "${GREEN}Done. Verify with: sudo docker run --rm --gpus all nvidia/cuda:12.6.3-base-ubuntu24.04 nvidia-smi"

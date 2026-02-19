@@ -36,9 +36,10 @@ services:
 
   vms-migration:
     profiles: ["migration", "all"]
-    image: beesar/beesar-vms-be:migration-latest
+    image: ghcr.io/beesar-id/nayarta-vms-migration:latest-${IMAGE_SUFFIX:-dev}
     container_name: nayarta-migration-vms
     restart: "no"
+    command: ["sh", "-c", "/app/migrate up && /app/migrate seed"]
     env_file:
       - ../.env
     environment:
