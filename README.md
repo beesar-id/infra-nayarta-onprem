@@ -165,6 +165,21 @@ sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 ```
 
+## Nvidia-SMI
+check nvidia-smi can run on sudo
+```sh
+sudo nvidia-smi
+```
+if not just run `nvidia-smi`, if work just set to the path:
+```sh
+which nvidia-smi
+sudo visudo
+```
+edit the file and add like this:
+```bash
+secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/usr/lib/wsl/lib"
+```
+
 ### Convert config file to unix
 ```bash
 dos2unix /file/config.conf
