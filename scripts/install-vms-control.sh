@@ -33,7 +33,7 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 # Project root = current working directory when script was invoked
-# Jalankan dari project root: cd /path/to/infra-nayarta-onprem && sudo ./scripts/install-vms-control-service.sh
+# Run from project root: cd /path/to/infra-nayarta-onprem && sudo ./scripts/install-vms-control.sh
 PROJECT_ROOT="$(abs_path ".")"
 
 WORKDIR="${PROJECT_ROOT}/vms-control-panel"
@@ -44,40 +44,40 @@ echo -e "${BLUE}========================================${NC}"
 echo -e "${BLUE}VMS Control Panel - Systemd Service${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
-log_info "Lokasi yang akan dipakai:"
-echo "  Project root : $PROJECT_ROOT"
-echo "  WorkingDir   : $WORKDIR"
-echo "  ExecStart    : $EXECSTART"
-echo "  EnvironmentFile : $ENVFILE"
-echo "  PROJECT_ROOT (env) : $PROJECT_ROOT"
+log_info "Paths to be used:"
+echo "  Project root   : $PROJECT_ROOT"
+echo "  WorkingDir     : $WORKDIR"
+echo "  ExecStart      : $EXECSTART"
+echo "  EnvironmentFile: $ENVFILE"
+echo "  PROJECT_ROOT   : $PROJECT_ROOT"
 echo ""
-read -p "Apakah lokasi tersebut benar? (y/n): " -n 1 -r
+read -p "Is this location correct? (y/n): " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-  read -p "Masukkan lokasi project root yang benar: " INPUT_ROOT
+  read -p "Enter the correct project root path: " INPUT_ROOT
   INPUT_ROOT="${INPUT_ROOT/#\~/$HOME}"
   INPUT_ROOT="$(abs_path "$INPUT_ROOT")"
   if [ ! -d "$INPUT_ROOT" ]; then
-    log_error "Direktori tidak ada: $INPUT_ROOT"
+    log_error "Directory does not exist: $INPUT_ROOT"
     exit 1
   fi
   PROJECT_ROOT="$INPUT_ROOT"
   WORKDIR="${PROJECT_ROOT}/vms-control-panel"
   EXECSTART="${PROJECT_ROOT}/vms-control-panel/vms-control-server"
   ENVFILE="${PROJECT_ROOT}/vms-control-panel/.env"
-  log_info "Menggunakan project root: $PROJECT_ROOT"
+  log_info "Using project root: $PROJECT_ROOT"
 fi
 
 if [ ! -d "$WORKDIR" ]; then
-  log_error "Direktori vms-control-panel tidak ditemukan: $WORKDIR"
+  log_error "vms-control-panel directory not found: $WORKDIR"
   exit 1
 fi
 if [ ! -f "$EXECSTART" ]; then
-  log_error "Binary tidak ditemukan: $EXECSTART"
+  log_error "Binary not found: $EXECSTART"
   exit 1
 fi
 if [ ! -x "$EXECSTART" ]; then
-  log_warn "Binary ada tapi tidak executable: $EXECSTART"
+  log_warn "Binary exists but is not executable: $EXECSTART"
 fi
 
 SERVICE_NAME="vms-control.service"
@@ -117,15 +117,15 @@ StandardError=journal
 WantedBy=multi-user.target
 EOF
 
-log_ok "Service file ditulis: $SERVICE_PATH"
+log_ok "Service file written: $SERVICE_PATH"
 log_info "Daemon reload..."
 systemctl daemon-reload
-log_info "Enable vms-control.service..."
+log_info "Enabling vms-control.service..."
 systemctl enable "$SERVICE_NAME"
-log_info "Start vms-control.service..."
+log_info "Starting vms-control.service..."
 systemctl start "$SERVICE_NAME"
-log_ok "Service terpasang, di-enable, dan di-start."
+log_ok "Service installed, enabled, and started."
 echo ""
 systemctl status "$SERVICE_NAME" --no-pager || true
 echo ""
-echo -e "${GREEN}Selesai. Perintah: systemctl status vms-control, journalctl -u vms-control -f${NC}"
+echo -e "${GREEN}Done. Commands: systemctl status vms-control, journalctl -u vms-control -f${NC}"

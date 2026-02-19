@@ -43,7 +43,7 @@ PGPASSWORD="$PGPASSWORD" psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_
     SELECT 'CREATE DATABASE vms_development' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'vms_development')\gexec
 EOSQL
 
-Restore database dumps
+# Restore database dumps
 # if [ -f /dumps/analytics_db.dump ]; then
 #     echo "Restoring analytics_db..."
 #     pg_restore -U "$DB_USER" -d analytics_db --no-owner --no-acl --if-exists -c /dumps/analytics_db.dump 2>/dev/null || echo "Restore completed with some warnings (normal)"

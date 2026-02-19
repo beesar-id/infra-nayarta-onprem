@@ -11,7 +11,10 @@ Super clean dan modular Docker Compose setup dengan **include-based architecture
 **Option A: Automatic Setup (Recommended)**
 ```bash
 # Run the setup script to automatically detect and set HOST_PROJECT_ROOT
+./scripts/install-container-toolkit.sh
+./scripts/install-vms-control.sh
 ./scripts/setup-env.sh
+./scripts/initial-sertup.sh
 ```
 
 **Option B: Manual Setup**

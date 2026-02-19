@@ -1,6 +1,6 @@
 #!/bin/bash
 # Install Docker, Docker Compose (if missing), then NVIDIA Container Toolkit.
-# Target: Debian/Ubuntu. Run with: sudo ./install-nvidia-container-toolkit.sh
+# Target: Debian/Ubuntu. Run with: sudo ./scripts/install-container-toolkit.sh
 
 set -e
 

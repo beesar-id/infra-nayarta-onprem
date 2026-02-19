@@ -2,7 +2,7 @@ services:
   migration-ch:
     image: beesar/migration-ch:latest
     container_name: nayarta-migration-ch
-    profiles: ["migration", "all"]
+    profiles: ["migration"]
     restart: "no"
     volumes:
       - ${HOST_PROJECT_ROOT:-.}/migration/analytics-postgres/migrations:/app/analytics-postgres
@@ -21,7 +21,7 @@ services:
   migration-pg-analytics:
     image: beesar/migration-pg-analytics:latest
     container_name: nayarta-migration-pg-analytics
-    profiles: ["migration", "all"]
+    profiles: ["migration"]
     restart: "no"
     # env_file:
     #   - ../.env
@@ -35,7 +35,7 @@ services:
       - "com.project.profile=migration"
 
   vms-migration:
-    profiles: ["migration", "all"]
+    profiles: ["migration"]
     image: ghcr.io/beesar-id/nayarta-vms-migration:latest-${IMAGE_SUFFIX:-dev}
     container_name: nayarta-migration-vms
     restart: "no"
@@ -55,7 +55,7 @@ services:
       - "com.project.profile=migration"
 
   vms-migration-seed:
-    profiles: ["migration", "all"]
+    profiles: ["migration"]
     image: ghcr.io/beesar-id/nayarta-vms-migration:latest-${IMAGE_SUFFIX:-dev}
     container_name: nayarta-migration-vms-seed
     restart: "no"

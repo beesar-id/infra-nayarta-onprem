@@ -36,7 +36,7 @@ services:
       - "com.project.profile=storage"
 
   minio-init:
-    profiles: ["storage", "all", "appstack"]
+    profiles: ["storage", "storage-init"]
     image: minio/mc:latest
     container_name: nayarta-minio-init
     depends_on:
