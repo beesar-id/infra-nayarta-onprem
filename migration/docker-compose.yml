@@ -39,11 +39,33 @@ services:
     image: ghcr.io/beesar-id/nayarta-vms-migration:latest-${IMAGE_SUFFIX:-dev}
     container_name: nayarta-migration-vms
     restart: "no"
-    command: ["sh", "-c", "/app/migrate up && /app/migrate seed"]
     env_file:
       - ../.env
     environment:
       # Database Connection (from database service)
+      - DB_NAME=${DB_NAME:-vms_development}
+      - DB_USER=${DB_USER:-admin}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST:-nayarta-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+    networks:
+      - nayarta-network
+    labels:
+      - "com.project.name=nayarta"
+      - "com.project.profile=migration"
+
+  vms-migration-seed:
+    profiles: ["migration", "all"]
+    image: ghcr.io/beesar-id/nayarta-vms-migration:latest-${IMAGE_SUFFIX:-dev}
+    container_name: nayarta-migration-vms-seed
+    restart: "no"
+    command: ["/app/migrate", "seed"]
+    depends_on:
+      vms-migration:
+        condition: service_completed_successfully
+    env_file:
+      - ../.env
+    environment:
       - DB_NAME=${DB_NAME:-vms_development}
       - DB_USER=${DB_USER:-admin}
       - DB_PASSWORD=${DB_PASSWORD}
